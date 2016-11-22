@@ -3,14 +3,32 @@ const Route = ReactRouter.Route
 const Link = ReactRouter.Link
 const hashHistory = ReactRouter.hashHistory
 
-// ================================================
-// DATAS
-// ================================================
-var CommentBox = React.createClass({
+// ============================================================
+
+// ============================================================
+// ============================================================
+
+// ============================================================
+// ============================================================
+
+// DATA DATE
+
+// ============================================================
+// ============================================================
+
+// ============================================================
+// ============================================================
+
+// ============================================================
+// ============================================================
+
+// ============================================================
+
+var MyDataDateBox = React.createClass({
   getInitialState: function(){
     return {data: []}
   },
-  loadComments: function(){
+  loadMyDataDates: function(){
     $.ajax({
       url: this.props.url,
       dataType: 'JSON',
@@ -26,21 +44,21 @@ var CommentBox = React.createClass({
     })
   },
   componentDidMount: function(){
-    this.loadComments()
+    this.loadMyDataDates()
   },
-  handleCommentSubmit: function(comment){
-    var comments = this.state.data
-    comment.id = comments.length + 1
-    var newComments = comments.concat([comment])
+  handleMyDataDateSubmit: function(mydatadate){
+    var mydatadates = this.state.data
+    mydatadate.id = mydatadates.length + 1
+    var newMyDataDates = mydatadates.concat([mydatadate])
     this.setState({
-      data: newComments
+      data: newMyDataDates
     })
 
     $.ajax({
       url: this.props.url,
       dataType: 'JSON',
       type: 'POST',
-      data: comment,
+      data: mydatadate,
       success: function(response){
         this.setState({
           data: response
@@ -48,14 +66,14 @@ var CommentBox = React.createClass({
       }.bind(this),
       error: function(xhr, status, err){
         this.setState({
-          data: comments
+          data: mydatadates
         })
         console.error(this.props.url, status, err.toString())
       }.bind(this)
     })
   },
-  handleCommentDelete: function(id){
-    var comments = this.state.data
+  handleMyDataDateDelete: function(id){
+    var mydatadates = this.state.data
     $.ajax({
       url: this.props.url,
       dataType: 'JSON',
@@ -68,7 +86,7 @@ var CommentBox = React.createClass({
       }.bind(this),
       error: function(xhr, status, err){
         this.setState({
-          data: comments
+          data: mydatadates
         })
         console.error(this.props.url, status, err.toString())
       }.bind(this)
@@ -76,95 +94,104 @@ var CommentBox = React.createClass({
   },
   render: function(){
     return(
-      <div className="commentBox">
+      <div className="mydatadateBox">
         <div className="jumbotron">
         <div className="container text-center">
-          <h1>DATAS</h1>
+          <h1>DATA DATES</h1>
         </div>
       </div>
-        <CommentList data={this.state.data} handleCommentDelete={this.handleCommentDelete}/>
-        <CommentForm onCommentSubmit={this.handleCommentSubmit} />
+        <MyDataDateList data={this.state.data} handleMyDataDateDelete={this.handleMyDataDateDelete}/>
+        <MyDataDateForm onMyDataDateSubmit={this.handleMyDataDateSubmit} />
       </div>
     )
   }
 })
 
-var CommentList = React.createClass({
-  onCommentDelete(){
-    // ISIII
-    // DIIIII
-    // SINIIII
-  },
+var MyDataDateList = React.createClass({
   render: function(){
-    var h2 = <h2>Comment List</h2>
-    var commentNodes = this.props.data.map((comment) => {
+    var h2 = <h2>MyDataDate List</h2>
+    var mydatadateNodes = this.props.data.map((mydatadate) => {
       return(
-        <Comment key={comment.id} id={comment.id} author={comment.author} text={comment.text} handleCommentDelete={this.props.handleCommentDelete}/>
+        <MyDataDate key={mydatadate.id} id={mydatadate.id} letter={mydatadate.letter} frequency={mydatadate.frequency} handleMyDataDateDelete={this.props.handleMyDataDateDelete}/>
       )
     }.bind(this))
-    return (<div>{commentNodes}</div>)
+    return (<div>{mydatadateNodes}</div>)
   }
 })
 
-var Comment = React.createClass({
+var MyDataDate = React.createClass({
   render(){
     return (
-      <div className="comment" id={this.props.id}>
+      <div className="mydatadate" id={this.props.id}>
         <div className="well">
-          <h3>{this.props.author}</h3>
-          <p>{this.props.text}</p>
-          <DeleteButton id={this.props.id} onCommentDelete={this.props.handleCommentDelete}/>
+          <h3>{this.props.letter}</h3>
+          <p>{this.props.frequency}</p>
+          <EditDataDateButton id={this.props.id} onMyDataDateEdit={this.props.handleMyDataDateEdit}/>
+          &nbsp;
+          <DeleteDataDateButton id={this.props.id} onMyDataDateDelete={this.props.handleMyDataDateDelete}/>
         </div>
       </div>
     )
   }
 })
 
-var DeleteButton = React.createClass({
+var EditDataDateButton = React.createClass({
+  handleEdit(e){
+    var id = this.props.id
+      this.props.onMyDataDateEdit(id)
+  },
+  render(){
+    return(
+      <button className="btn btn-warning btn-sm" onClick={this.handleEdit}>Edit</button>
+      )
+  }
+})
+
+var DeleteDataDateButton = React.createClass({
   handleDelete(e){
     var id = this.props.id
     if(confirm("Are you sure you want to delete?") === true){
-      this.props.onCommentDelete(id)
+      this.props.onMyDataDateDelete(id)
     }
   },
   render(){
     return(
-      <button className="btn btn-danger btn-sm" onClick={this.handleDelete}>Delete Comment</button>
+      <button className="btn btn-danger btn-sm" onClick={this.handleDelete}>Delete</button>
       )
   }
 })
 
-var CommentForm = React.createClass({
+var MyDataDateForm = React.createClass({
   getInitialState(){
     return ({
-      author: '',
-      text: ''
+      letter: '',
+      frequency: ''
     })
   },
-  handleAuthorChange(e){
+  handleLetterChange(e){
     this.setState({
-      author: e.target.value
+      letter: e.target.value
     })
   },
-  handleTextChange(e){
+  handleFrequencyChange(e){
     this.setState({
-      text: e.target.value
+      frequency: e.target.value
     })
   },
   handleSubmit(e){
     e.preventDefault()
-    var author = this.state.author.trim()
-    var text = this.state.text.trim()
-    if(!author || !text){
+    var letter = this.state.letter.trim()
+    var frequency = this.state.frequency.trim()
+    if(!letter || !frequency){
       return
     }else{
-      this.props.onCommentSubmit({
-        author: author,
-        text: text
+      this.props.onMyDataDateSubmit({
+        letter: letter,
+        frequency: frequency
       })
       this.setState({
-        author: '',
-        text: ''
+        letter: '',
+        frequency: ''
       })
     }
   },
@@ -172,9 +199,216 @@ var CommentForm = React.createClass({
     return(
       <div className="well">
         <form onSubmit={this.handleSubmit}>
-        <input className="form-control" type="text" placeholder="Enter Letter" value={this.state.author} onChange={this.handleAuthorChange} />
+        <input className="form-control" type="date" value={this.state.letter} onChange={this.handleLetterChange} />
         <br/>
-        <input className="form-control" type="text" placeholder="Enter Frequency" onChange={this.handleTextChange} value={this.state.text} />
+        <input className="form-control" type="text" placeholder="Enter Frequency (Ex: 12.3)" onChange={this.handleFrequencyChange} value={this.state.frequency} />
+        <br/>
+        <input className="btn btn-md btn-primary" type="submit" value="Add Data Date" />
+        </form>
+      </div>
+    )
+  }
+})
+
+// ============================================================
+
+// ============================================================
+// ============================================================
+
+// ============================================================
+// ============================================================
+
+// DATA
+
+// ============================================================
+// ============================================================
+
+// ============================================================
+// ============================================================
+
+// ============================================================
+// ============================================================
+
+// ============================================================
+
+var MyDataBox = React.createClass({
+  getInitialState: function(){
+    return {data: []}
+  },
+  loadMyDatas: function(){
+    $.ajax({
+      url: this.props.url,
+      dataType: 'JSON',
+      cache: false,
+      success: function(response){
+        this.setState({
+          data: response
+        })
+      }.bind(this),
+      error: function(xhr, status, err){
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    })
+  },
+  componentDidMount: function(){
+    this.loadMyDatas()
+  },
+  handleMyDataSubmit: function(mydata){
+    var mydatas = this.state.data
+    mydata.id = mydatas.length + 1
+    var newMyDatas = mydatas.concat([mydata])
+    this.setState({
+      data: newMyDatas
+    })
+
+    $.ajax({
+      url: this.props.url,
+      dataType: 'JSON',
+      type: 'POST',
+      data: mydata,
+      success: function(response){
+        this.setState({
+          data: response
+        })
+      }.bind(this),
+      error: function(xhr, status, err){
+        this.setState({
+          data: mydatas
+        })
+        console.error(this.props.url, status, err.toString())
+      }.bind(this)
+    })
+  },
+  handleMyDataDelete: function(id){
+    var mydatas = this.state.data
+    $.ajax({
+      url: this.props.url,
+      dataType: 'JSON',
+      type: 'DELETE',
+      data: {id: id},
+      success: function(response){
+        this.setState({
+          data: response
+        })
+      }.bind(this),
+      error: function(xhr, status, err){
+        this.setState({
+          data: mydatas
+        })
+        console.error(this.props.url, status, err.toString())
+      }.bind(this)
+    })
+  },
+  render: function(){
+    return(
+      <div className="mydataBox">
+        <div className="jumbotron">
+        <div className="container text-center">
+          <h1>DATAS</h1>
+        </div>
+      </div>
+        <MyDataList data={this.state.data} handleMyDataDelete={this.handleMyDataDelete}/>
+        <MyDataForm onMyDataSubmit={this.handleMyDataSubmit} />
+      </div>
+    )
+  }
+})
+
+var MyDataList = React.createClass({
+  render: function(){
+    var h2 = <h2>MyData List</h2>
+    var mydataNodes = this.props.data.map((mydata) => {
+      return(
+        <MyData key={mydata.id} id={mydata.id} letter={mydata.letter} frequency={mydata.frequency} handleMyDataDelete={this.props.handleMyDataDelete}/>
+      )
+    }.bind(this))
+    return (<div>{mydataNodes}</div>)
+  }
+})
+
+var MyData = React.createClass({
+  render(){
+    return (
+      <div className="mydata" id={this.props.id}>
+        <div className="well">
+          <h3>{this.props.letter}</h3>
+          <p>{this.props.frequency}</p>
+          <EditDataButton id={this.props.id} onMyDataEdit={this.props.handleMyDataEdit}/>
+          &nbsp;
+          <DeleteDataButton id={this.props.id} onMyDataDelete={this.props.handleMyDataDelete}/>
+        </div>
+      </div>
+    )
+  }
+})
+
+var EditDataButton = React.createClass({
+  handleEdit(e){
+    var id = this.props.id
+      this.props.onMyDataEdit(id)
+  },
+  render(){
+    return(
+      <button className="btn btn-warning btn-sm" onClick={this.handleEdit}>Edit</button>
+      )
+  }
+})
+
+var DeleteDataButton = React.createClass({
+  handleDelete(e){
+    var id = this.props.id
+    if(confirm("Are you sure you want to delete?") === true){
+      this.props.onMyDataDelete(id)
+    }
+  },
+  render(){
+    return(
+      <button className="btn btn-danger btn-sm" onClick={this.handleDelete}>Delete</button>
+      )
+  }
+})
+
+var MyDataForm = React.createClass({
+  getInitialState(){
+    return ({
+      letter: '',
+      frequency: ''
+    })
+  },
+  handleLetterChange(e){
+    this.setState({
+      letter: e.target.value
+    })
+  },
+  handleFrequencyChange(e){
+    this.setState({
+      frequency: e.target.value
+    })
+  },
+  handleSubmit(e){
+    e.preventDefault()
+    var letter = this.state.letter.trim()
+    var frequency = this.state.frequency.trim()
+    if(!letter || !frequency){
+      return
+    }else{
+      this.props.onMyDataSubmit({
+        letter: letter,
+        frequency: frequency
+      })
+      this.setState({
+        letter: '',
+        frequency: ''
+      })
+    }
+  },
+  render(){
+    return(
+      <div className="well">
+        <form onSubmit={this.handleSubmit}>
+        <input className="form-control" type="text" placeholder="Enter Letter (Ex: E)" value={this.state.letter} onChange={this.handleLetterChange} />
+        <br/>
+        <input className="form-control" type="text" placeholder="Enter Frequency (Ex: 11.7)" onChange={this.handleFrequencyChange} value={this.state.frequency} />
         <br/>
         <input className="btn btn-md btn-primary" type="submit" value="Add Data" />
       </form>
@@ -183,7 +417,26 @@ var CommentForm = React.createClass({
   }
 })
 
-// ==================================================
+// ============================================================
+
+// ============================================================
+// ============================================================
+
+// ============================================================
+// ============================================================
+
+// ROUTES
+
+// ============================================================
+// ============================================================
+
+// ============================================================
+// ============================================================
+
+// ============================================================
+// ============================================================
+
+// ============================================================
 
 const Nav = React.createClass({
   render: function(){
@@ -192,13 +445,12 @@ const Nav = React.createClass({
       <nav className="navbar navbar-default navbar-fixed-top">
             <div className="container">
               <div className="navbar-header">
-                <a className="navbar-brand" href="#">CMS API</a>
+                <Link to="/"><a className="navbar-brand" href="#">CMS API</a></Link>
               </div>
               <div id="navbar" className="navbar-collapse collapse">
                 <ul className="nav navbar-nav">
-                  <li><Link to="/">Home</Link></li>
                   <li><Link to="/datas">Datas</Link></li>
-                  <li><Link to="/datadates">Datadatas</Link></li>
+                  <li><Link to="/datadates">Datadates</Link></li>
                 </ul>
               </div>
             </div>
@@ -214,10 +466,7 @@ const Home = React.createClass({
     return(
       <div>
         <Nav />
-        <br/>
-        <br/>
-        <br/>
-        <h2>This is your homepage</h2>
+        <h2 className="text-center">Welcome to CMS-API!</h2>
       </div>
       )
   }
@@ -228,10 +477,7 @@ const Data = React.createClass({
     return(
       <div>
         <Nav />
-        <br/>
-        <br/>
-        <br/>
-        <CommentBox url="http://localhost:3000/api/comments"/>
+        <MyDataBox url="http://localhost:3000/api/mydatas"/>
       </div>
       )
   }
@@ -242,10 +488,7 @@ const Datadate = React.createClass({
     return(
       <div>
       <Nav />
-        <br/>
-        <br/>
-        <br/>
-        <h2>Component Datadate</h2>
+        <MyDataDateBox url="http://localhost:3000/api/mydatadates"/>
       </div>
       )
   }
@@ -260,5 +503,3 @@ ReactDOM.render(
   </Router>
   ), document.getElementById('content')
 )
-
-// ==========================================
