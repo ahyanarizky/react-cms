@@ -33,6 +33,7 @@ module.exports = {
 
     createData: function (req, res) {
         const insertData = {
+            dataId: req.body.dataId,
             letter: req.body.letter,
             frequency: req.body.frequency
         }
