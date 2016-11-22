@@ -1,0 +1,22 @@
+{
+  "name": "Ken Duigraha Putra",
+  "description": "cms-api",
+  "main": "index.js",
+  "authors": [
+    "Ken Duigraha Putra <kenduigraha@yahoo.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/kenduigraha/cms-api",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "lib/",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "jwt-decode": "^2.1.0"
+  }
+}

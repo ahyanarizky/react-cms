@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="./lib/bootstrap/dist/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="./lib/bootstrap/dist/css/bootstrap.min.css">
+  <title>CMS</title>
+</head>
+<body>
+  <!-- navbar -->
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">cms-api</a>
+        </div>
+        <ul class="nav navbar-nav">
+          <li><a href="home.html">Home</a></li>
+          <li class="active"><a href="data.html">Data</a></li>
+          <li><a href="dataDate.html">Data Dates</a></li>
+          <li><a href="#" id="logout">Logout</a></li>
+        </ul>
+      </div>
+    </nav>
+  <!-- navbar -->
+
+  <div class="container">
+    <button type="button" id="show_form_add" class="btn btn-default">Add</button>
+    <button type="button" id="show_form_hide" class="btn btn-default">Hide</button>
+    <form id="form_new_data">
+      <div class="form-group">
+        <label for="letter">Letter :</label>
+        <input type="text" id="letter" class="form-control">
+      </div>
+       <div class="form-group">
+         <label for="frequency">Frequency :</label>
+         <input type="text" class="form-control" id="frequency">
+       </div>
+       <input type="hidden" id="id">
+       <button type="button" class="btn btn-success" id="btn_add">Submit</button>
+       <button type="button" class="btn btn-warning" id="btn_update">Update</button>
+   </form>
+
+   <!-- search -->
+   <div class="col-sm-4">
+     <label for="search_letter">Letter :</label>
+     <input type="text" class="form-control" id="search_letter" placeholder="A">
+   </div>
+   <div class="col-sm-4">
+     <label for="search_frequency">Frequency :</label>
+     <input type="text" class="form-control" id="search_frequency" placeholder="0.00000">
+   </div>
+  <!-- end search -->
+     <table class="table table-striped" id="table">
+       <thead>
+         <tr>
+           <th class="col-sm-4">Letter</th>
+           <th class="col-sm-4">Frequency</th>
+           <th class="col-sm-4">Action</th>
+         </tr>
+       </thead>
+       <tbody id="body_table"></tbody>
+     </table>
+  </div>
+
+</body>
+  <script src="./lib/jquery/dist/jquery.min.js"></script>
+  <script src="./lib/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="./lib/jwt-decode/build/jwt-decode.min.js"></script>
+  <script src="./script/data.js"></script>
+</html>
