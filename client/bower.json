@@ -1,0 +1,22 @@
+{
+  "name": "client",
+  "main": "index.js",
+  "homepage": "https://github.com/dharmadi93/cms-api",
+  "authors": [
+    "Dharmadi Tanamas <dharmadi93@gmail.com>"
+  ],
+  "description": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "lib/",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "jwt-decode": "^2.1.0"
+  }
+}
