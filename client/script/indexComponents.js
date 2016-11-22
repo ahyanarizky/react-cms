@@ -164,18 +164,69 @@ const Login = React.createClass({
 })
 
 const Register = React.createClass({
+  getInitialState(){
+    return({
+      username: '',
+      password: '',
+      email: ''
+    })
+  },
+  handleUsername(e){
+    this.setState({
+      username: e.target.value
+    })
+  },
+  handlePassword(e){
+    this.setState({
+      password: e.target.value
+    })
+  },
+  handleEmail(e){
+    this.setState({
+      email: e.target.value
+    })
+  },
+  handleSubmitRegister(e){
+    e.preventDefault()
+    var data_regis = {
+      username: this.state.username.trim(),
+      password: this.state.password.trim(),
+      email: this.state.email.trim()
+    }
+
+    if(!data_regis.username || !data_regis.password || !data_regis.email){
+      return
+    }else{
+      $.post({
+        url: "http://localhost:3000/api/users/login",
+        data: data_regis,
+        success: function(new_user){
+          localStorage.setItem('token', new_user.token)
+
+          if(getUser().username){
+            this.props.router.replace('/dashboard')
+          }
+        }.bind(this)
+      })
+
+      this.setState({
+        username: '',
+        password: ''
+      })
+    }
+  },
   render: function(){
     return(
       <div>
           <div className="container">
-            <form id="form_register">
+            <form id="form_register" onSubmit={this.handleSubmitRegister}>
               <div className="form-group">
                 <label htmlFor="username">Username</label>
-                <input type="text" className="form-control" id="username" />
+                <input type="text" className="form-control" id="username" onChange={this.handleUsername} />
               </div>
               <div className="form-group">
                 <label htmlFor="password">Password</label>
-                <input type="password" className="form-control" id="password" />
+                <input type="password" className="form-control" id="password" onChange={this.handlePassword} />
               </div>
               <div className="form-group">
                 <label htmlFor="confirm_password">Confirm Password</label>
@@ -183,10 +234,10 @@ const Register = React.createClass({
               </div>
               <div className="form-group">
                 <label htmlFor="email">Email</label>
-                <input type="text" className="form-control" id="email" />
+                <input type="text" className="form-control" id="email" onChange={this.handleEmail} />
               </div>
               <div className="form-group">
-                <button type="button" id="btn_register" className="btn btn-lg btn-success">Register</button>
+                <button type="submit" id="btn_register" className="btn btn-lg btn-success">Register</button>
               </div>
             </form>
           </div>
