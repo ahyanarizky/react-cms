@@ -86,7 +86,7 @@ module.exports = {
 
     deleteDataById: function (req, res) {
         Data.findOneAndRemove({
-            _id: req.params.id
+            dataId: req.body.id
         }, function (err, data) {
             if (err) res.json(err)
             else res.json(data)

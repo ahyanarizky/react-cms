@@ -97,6 +97,24 @@ const Data = React.createClass({
         this.loadData()
     },
 
+    handleDeleteDataBox: function (id) {
+        let datas = this.state.data
+        let newData = datas.filter(function (x) {
+            if (x.dataId != id) return x
+        })
+        this.setState({data: newData})
+        $.ajax({
+            url: `http://localhost:3000/api/data`,
+            type: 'DELETE',
+            data: {
+                id: id
+            },
+            success: function (data) {
+                this.setState({data: newData})
+            }.bind(this)
+        })
+    },
+
     render: function () {
         return(
             <div>
@@ -123,7 +141,7 @@ const Data = React.createClass({
                                     </tr>
                                     </thead>
 
-                                    <DataList data={this.state.data}/>
+                                    <DataList handleDeleteDataBox={this.handleDeleteDataBox} data={this.state.data}/>
                                 </table>
                             </div>
                         </div>
@@ -140,12 +158,16 @@ const Data = React.createClass({
 const DataList = React.createClass({
     render: function () {
         let dataNodes = this.props.data.map(function (data) {
-            return(<ShowData key={data.dataId} id={data.dataId} letter={data.letter} frequency={data.frequency}/>)
+            return(<ShowData onDataDeleteShowData={this.dataDeleteDataList} key={data.dataId} id={data.dataId} letter={data.letter} frequency={data.frequency}/>)
         }.bind(this))
         return(
             <tbody>{dataNodes}</tbody>
         )
-    }
+    },
+
+    dataDeleteDataList: function (id) {
+        this.props.handleDeleteDataBox(id)
+    },
 })
 
 const ShowData = React.createClass({
@@ -156,11 +178,16 @@ const ShowData = React.createClass({
                 <td>{this.props.frequency}</td>
                 <td>
                     <a className="btn btn-warning">Edit</a>
-                    <a className="btn btn-danger">Delete</a>
+                    <a id={`${this.props.id}`} onClick={this.handleDelete} className="btn btn-danger">Delete</a>
                 </td>
             </tr>
 
         )
+    },
+
+    handleDelete: function (e) {
+        let id = e.target.id
+        this.props.onDataDeleteShowData(id)
     }
 })
 
