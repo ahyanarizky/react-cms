@@ -53,7 +53,7 @@ module.exports = {
 
     getDataById: function (req, res) {
         Data.findOne({
-            _id: req.params.id
+            dataId: req.params.id
         }, function (err, data) {
             if (err) res.json(err)
             else res.json(data)
@@ -95,11 +95,12 @@ module.exports = {
     },
 
     updateData: function (req, res) {
+        console.log(req.body)
         Data.findOneAndUpdate({
-            _id: req.params.id
+            dataId: req.body.dataId
         }, {
-            letter: req.body.letter,
-            frequency: req.body.frequency
+            letter: req.body.letterEdit,
+            frequency: req.body.frequencyEdit
         }, {
             new: true,
             upsert: false
