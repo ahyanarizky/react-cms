@@ -9,19 +9,97 @@
 </head>
 <body>
 
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="home.html">CMS</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li class="active"><a href="home.html">Home</a></li>
+            <li><a href="data.html">Data</a></li>
+            <li><a href="dataDate.html">Data Date</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li><a name="buttonLogout"><span class="glyphicon glyphicon-user"></span> Logout</a></li>
+        </ul>
+    </div>
+</nav>
+
 <div class="container">
+
     <div class="row">
         <div class="col-sm-12">
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    Welcome to Dashboard Hactiv8
+            <button name="showFormCreate" class="btn btn-primary">+Add</button>
+        </div>
+    </div>
+
+    <div class="row hidden" id="formCreate">
+        <div class="col-sm-12">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label>Letter</label>
+                    <input type="text" class="form-control" name="letter">
                 </div>
-                <div class="panel-body">
-                    <a href="#" class="col-sm-12 btn btn-danger">Line</a>
-                    <a href="#" class="col-sm-12 btn btn-warning">Pie</a>
-                    <a href="#" class="col-sm-12 btn btn-primary">Bar</a>
-                    <a href="home.html" class="col-sm-12 btn btn-success">Admin Panel</a>
+                <div class="form-group">
+                    <label>Frequency:</label>
+                    <input type="number" class="form-control" name="frequency">
                 </div>
+                <div class="form-group">
+                    <button class="btn btn btn-default" name="buttonCreate">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row hidden" id="formEdit">
+        <div class="col-sm-12">
+            <form class="form-inline" id="getId">
+                <div class="form-group">
+                    <label>Letter</label>
+                    <input type="text" class="form-control" name="letterEdit">
+                </div>
+                <div class="form-group">
+                    <label>Frequency:</label>
+                    <input type="number" class="form-control" name="frequencyEdit">
+                </div>
+                <div class="form-group">
+                    <button class="btn btn btn-default" name="buttonEdit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label>Letter</label>
+                    <input type="text" class="form-control" name="letterSearch">
+                </div>
+                <div class="form-group">
+                    <label>Frequency:</label>
+                    <input type="number" class="form-control" name="frequencySearch">
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <td>Letter</td>
+                        <td>Frequency</td>
+                        <td>Actions</td>
+                    </tr>
+                    </thead>
+
+                    <tbody id="rowOfDatas">
+
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -29,15 +107,10 @@
 
 </body>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.min.js"></script>
-<script src="https://unpkg.com/react@15/dist/react.js"></script>
-<script src="https://unpkg.com/react-dom@15/dist/react-dom.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-router/3.0.0/ReactRouter.min.js"></script>
 <script src="lib/jquery/dist/jquery.min.js"></script>
 <script src="lib/bootstrap/dist/js/bootstrap.min.js"></script>
 <script src="lib/jwt-decode/build/jwt-decode.min.js"></script>
 <script src="token.js"></script>
-<script src="home.js"></script>
-<script type="text/babel" src="components/component.js"></script>
+<script src="data.js"></script>
 
 </html>
