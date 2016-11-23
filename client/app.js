@@ -87,46 +87,68 @@ const DataContent = React.createClass({
         })
     },
     postData: function(objectFromFormAdd) {
-      var recentState = this.state.data
-      $.ajax({
-        url: this.props.url,
-        dataType: 'json',
-        method: 'post',
-        data: objectFromFormAdd,
-        success: function(response) {
-          var newPost = recentState.concat([response])
-          this.setState({data: newPost})
-        }.bind(this),
-        error: function(xhr, status, err) {
-            this.setState({data: recentState})
-            console.error(this.props.url, status, err.toString());
-        }.bind(this)
-      })
+        var recentState = this.state.data
+        $.ajax({
+            url: this.props.url,
+            dataType: 'json',
+            method: 'post',
+            data: objectFromFormAdd,
+            success: function(response) {
+                var newPost = recentState.concat([response])
+                this.setState({data: newPost})
+            }.bind(this),
+            error: function(xhr, status, err) {
+                this.setState({data: recentState})
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        })
     },
     deleteData: function(data_id) {
-      console.log('data_id :',data_id);
-      var del = confirm('Are you sure want to delete this data ?')
-      if (del) {
+        console.log('data_id :', data_id);
+        var del = confirm('Are you sure want to delete this data ?')
+        if (del) {
+            $.ajax({
+                url: this.props.url,
+                method: 'DELETE',
+                dataType: 'json',
+                data: {
+                    id: data_id
+                },
+                success: function(response) {
+                    console.log('success');
+                    this.loadData()
+                }.bind(this),
+                error: function(xhr, status, err) {
+                    console.log('failed');
+                    console.error(this.props.url, status, err.toString());
+                }.bind(this)
+            })
+        } else {
+            console.log('confirm error');
+            return;
+        }
+    },
+    editData: function(data_id, letter, frequency) {
+        console.log('data_id :', data_id);
+        console.log('letter :', letter);
+        console.log('frequency :', frequency);
         $.ajax({
-          url: this.props.url,
-          method: 'DELETE',
-          dataType: 'json',
-          data: {
-            id: data_id
-          },
-          success: function(response) {
-            console.log('success');
-            this.loadData()
-          }.bind(this),
-          error: function(xhr, status, err) {
-            console.log('failed');
-              console.error(this.props.url, status, err.toString());
-          }.bind(this)
+            url: this.props.url,
+            dataType: 'json',
+            method: 'PUT',
+            data: {
+                id: data_id,
+                letter: letter,
+                frequency: frequency
+            },
+            success: function(response) {
+                this.loadData()
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.log('failed');
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
         })
-      } else {
-        console.log('confirm error');
-        return ;
-      }
     },
     render: function() {
         return (
@@ -135,7 +157,7 @@ const DataContent = React.createClass({
                     <h1>Welcome to Data Page</h1>
                 </div>
                 <ButtonAdd postDataFromDataContent={this.postData}/>
-                <TableDataBox dataContentState={this.state.data} funcDelete={this.deleteData}/>
+                <TableDataBox dataContentState={this.state.data} funcDelete={this.deleteData} funcEdit={this.editData}/>
             </div>
         )
     },
@@ -150,56 +172,170 @@ const TableDataBox = React.createClass({
         return (
             <div className="tableDataBox">
                 <h1>CMS Table</h1>
-                <TableData dataContentState={this.props.dataContentState} funcDelete={this.props.funcDelete}/>
+                <TableData dataContentState={this.props.dataContentState} funcDelete={this.props.funcDelete} funcEdit={this.props.funcEdit}/>
             </div>
         )
     }
 })
 
 const TableData = React.createClass({
+    getInitialState: function() {
+        return {searchedName: '', searchedPhone: ''}
+    },
+    getSearchedName(e) {
+        this.setState({searchedName: e.target.value})
+    },
+    getSearchedPhone(e) {
+        this.setState({searchedPhone: e.target.value})
+    },
     render: function() {
+        let filteredData = this.props.dataContentState
+
+        if (this.state.searchedName != '' && this.state.searchedPhone != '') {
+            filteredData = this.props.dataContentState.filter((data) => {
+                return data.name.toLowerCase().startsWith(this.state.searchedName.toLowerCase()) && data.phone.startsWith(this.state.searchedPhone)
+            })
+        } else if (this.state.searchedName != '') {
+            filteredData = this.props.dataContentState.filter((data) => {
+                return data.name.toLowerCase().startsWith(this.state.searchedName.toLowerCase())
+            })
+        } else if (this.state.searchedPhone != '') {
+            filteredData = this.props.dataContentState.filter((data) => {
+                return data.phone.startsWith(this.state.searchedPhone)
+            })
+        }
         var tableContent = this.props.dataContentState.map(function(data) {
-            return (<EachData key={data.dataId} letter={data.letter} frequency={data.frequency} dataId={data.dataId} funcDelete={this.props.funcDelete}/>)
+            return (<EachData key={data.dataId} letter={data.letter} frequency={data.frequency} dataId={data.dataId} funcDelete={this.props.funcDelete} funcEdit={this.props.funcEdit}/>)
         }.bind(this))
         return (
-            <table className="table table-hover">
-                <thead className="thead-inverse">
-                    <tr>
-                        <th>Letter</th>
-                        <th>Frequency</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {tableContent}
-                </tbody>
-            </table>
+            <div>
+                <div className="container search-form well">
+                    <SearchForm atNameChange={this.getSearchedName.bind(this)} valName={this.state.searchedName} atPhoneChange={this.getSearchedPhone.bind(this)} valPhone={this.state.searchedPhone}/>
+                </div>
+                <table className="table table-hover">
+                    <thead className="thead-inverse">
+                        <tr>
+                            <th>Letter</th>
+                            <th>Frequency</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {tableContent}
+                    </tbody>
+                </table>
+            </div>
         )
     }
 })
 
+const SearchForm = React.createClass({
+  render: function() {
+    return (
+      <form className="form-inline">
+          <div className="form-group">
+              <label className="inline">Letter</label>
+              <input type="text" className="form-control" id="form-search-letter" value={this.props.valName} onChange={this.props.atNameChange} placeholder="Search Letter"/>
+          </div>
+          <div className="form-group">
+              <label className="inline">Frequency</label>
+              <input type="text" className="form-control" id="form-search-frequency" value={this.props.valPhone} onChange={this.props.atPhoneChange} placeholder="Search Frequency"/>
+          </div>
+      </form>
+    )
+  }
+})
+
 const EachData = React.createClass({
+    getInitialState: function() {
+        return {
+            editing: false,
+            letter: this.props.letter || '',
+            frequency: this.props.frequency || ''
+        }
+    },
     handleDelete: function() {
         console.log('this props :', this.props);
         this.props.funcDelete(this.props.dataId)
     },
+    handleEditing() {
+        console.log('handleEditing');
+        this.setState({editing: true})
+    },
+    handleCancelButton() {
+        this.setState({editing: false})
+    },
+    handleLetterChange(e) {
+        this.setState({letter: e.target.value})
+    },
+    handleFrequencyChange(e) {
+        this.setState({frequency: e.target.value})
+    },
+    confirmEdit() {
+        console.log('state :', this.state);
+        var letter = this.state.letter.trim()
+        var frequency = this.state.frequency
+        var upLetter = letter.toUpperCase()
+        var upFreq = frequency
+        console.log('letter :', letter);
+        console.log('freq :', frequency);
+        if (!letter || !frequency) {
+            return;
+        } else {
+            this.props.funcEdit(this.props.dataId, upLetter, upFreq)
+            this.setState({editing: false})
+        }
+    },
+
     render: function() {
-        return (
-            <tr>
-                <td>{this.props.letter}</td>
-                <td>{this.props.frequency}</td>
-                <td>
-                    <span className="form-group">
-                        <button className="btn btn-success">
-                            <span className="glyphicon glyphicon-edit"></span>
-                            Update</button>
-                        <button className="btn btn-danger inline-btn" onClick={this.handleDelete}>
-                            <span className="glyphicon glyphicon-trash"></span>
-                            Delete</button>
-                    </span>
-                </td>
-            </tr>
-        )
+        console.log(this.state.editing);
+        if (this.state.editing) {
+            return (
+                <tr>
+                    <form className="form-inline" onSubmit={this.confirmEdit}>
+                        <td>
+                            <div className="form-group">
+                                <label>Edit Letter</label>
+                                <input type="text" className="form-control let-freq" id="input-edit-letter" placeholder="Enter Letter" value={this.state.letter} onChange={this.handleLetterChange}/>
+                            </div>
+                        </td>
+                        <td>
+                            <div className="form-group">
+                                <label>Edit Frequency</label>
+                                <input type="text" className="form-control let-freq" id="input-edit-frequency" placeholder="Enter Frequency" value={this.state.frequency} onChange={this.handleFrequencyChange}/>
+                            </div>
+                        </td>
+                        <td>
+                            <button type="submit" className="btn btn-success btn-in">
+                                <span className="glyphicon glyphicon-ok"></span>
+                                Confirm Edit</button>
+                            <span>
+                                <a onClick={this.handleCancelButton} className="btn btn-default">
+                                    <span className="glyphicon glyphicon-remove"></span>
+                                    Cancel</a>
+                            </span>
+                        </td>
+                    </form>
+                </tr>
+            )
+        } else {
+            return (
+                <tr>
+                    <td>{this.props.letter}</td>
+                    <td>{this.props.frequency}</td>
+                    <td>
+                        <span className="form-group">
+                            <button className="btn btn-success" onClick={this.handleEditing}>
+                                <span className="glyphicon glyphicon-edit"></span>
+                                Update</button>
+                            <button className="btn btn-danger inline-btn" onClick={this.handleDelete}>
+                                <span className="glyphicon glyphicon-trash"></span>
+                                Delete</button>
+                        </span>
+                    </td>
+                </tr>
+            )
+        }
     }
 })
 

@@ -37,7 +37,7 @@ module.exports = {
     },
     updateData: function(req, res) {
         Data.findOneAndUpdate({
-            dataId: req.params.id
+            dataId: req.body.id
         }, {
             letter: req.body.letter,
             frequency: req.body.frequency
