@@ -99,11 +99,11 @@ module.exports = {
         Data.findOneAndUpdate({
             dataId: req.body.dataId
         }, {
-            letter: req.body.letterEdit,
-            frequency: req.body.frequencyEdit
+            letter: req.body.letter,
+            frequency: req.body.frequency
         }, {
             new: true,
-            upsert: false
+            upsert: true
         }, function (err, data) {
             if (err) res.json(err)
             else res.json(data)

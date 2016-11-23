@@ -3,6 +3,9 @@ const Route = ReactRouter.Route
 const Link = ReactRouter.Link
 const browserHistory = ReactRouter.browserHistory
 
+/* ********************************************************* */
+/* **************** NAVIGATION COMPONENTS******************* */
+/* ********************************************************* */
 const Nav = React.createClass({
 
     render: function () {
@@ -22,8 +25,15 @@ const Nav = React.createClass({
         )
     }
 })
+/* ********************************************************* */
+/* **************** NAVIGATION COMPONENTS******************* */
+/* ********************************************************* */
 
-const HomePanel = React.createClass({
+
+/* ********************************************************* */
+/* *********************** INDEX *************************** */
+/* ********************************************************* */
+const Index = React.createClass({
     render: function () {
         return(
             <div>
@@ -31,13 +41,8 @@ const HomePanel = React.createClass({
                 <div className="container">
                     <div className="row">
                         <div className="col-sm-12">
-                            <div className="panel panel-primary">
-                                <div className="panel-heading">
-                                    Welcome to Dashboard Hactiv8
-                                </div>
-                                <div className="panel-body">
-                                    <a href="home.html" className="col-sm-12 btn btn-success">Admin Panel</a>
-                                </div>
+                            <div className="jumbotron text-center">
+                                <h1>THIS IS INDEX</h1>
                             </div>
                         </div>
                     </div>
@@ -46,8 +51,14 @@ const HomePanel = React.createClass({
         )
     }
 })
+/* ********************************************************* */
+/* *********************** INDEX *************************** */
+/* ********************************************************* */
 
 
+/* ********************************************************* */
+/* ********* SHOW FORM FOR INSERT DATA ********************* */
+/* ********************************************************* */
 let DataForm = React.createClass({
     getInitialState: function () {
         return {
@@ -68,29 +79,45 @@ let DataForm = React.createClass({
         e.preventDefault()
         let letter = this.state.letter.trim()
         let frequency = this.state.frequency.trim()
-        if (!letter || ! frequency) return
-        else {
+        let dataId = this.props.dataUpdate.dataId
+        if (letter && frequency && !dataId) {
             this.props.onDataSubmit({letter: letter, frequency: frequency})
             this.setState({letter: ''})
             this.setState({frequency: ''})
         }
+        else if (letter && frequency && dataId) {
+            this.props.onDataSubmitEdit({dataId: dataId, letter: letter, frequency: frequency})
+            this.setState({letter: ''})
+            this.setState({frequency: ''})
+        }
+        else {
+            return
+        }
     },
 
     render: function () {
+        console.log(this.props.dataUpdate)
         return (
             <div className="row" id="formCreate">
                 <div className="col-sm-12">
-                    <form onSubmit={this.handleSubmit} className="form-inline">
+                    <form onSubmit={this.handleSubmit} className="form-horizontal">
                         <div className="form-group">
-                            <label>Letter</label>
-                            <input value={this.state.letter} onChange={this.handleLetterChange} type="text" className="form-control" />
+                            <label className="control-label col-sm-2">Letter</label>
+                            <div className="col-sm-10">
+                                <input value={this.state.letter} onChange={this.handleLetterChange} type="text" className="form-control" placeholder={this.props.dataUpdate.letter} />
+                            </div>
                         </div>
                         <div className="form-group">
-                            <label>Frequency:</label>
-                            <input value={this.state.frequency} onChange={this.handleFrequencyChange} type="number" className="form-control" />
+                            <label className="control-label col-sm-2">Frequency:</label>
+                            <div className="col-sm-10">
+                                <input value={this.state.frequency} onChange={this.handleFrequencyChange} type="number" className="form-control" placeholder={this.props.dataUpdate.frequency} />
+                            </div>
                         </div>
+
                         <div className="form-group">
-                            <button className="btn btn btn-default" name="buttonCreate">Save</button>
+                            <div className="col-sm-10 col-sm-offset-2">
+                                <button className="btn btn btn-default" name="buttonCreate">Save</button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -98,72 +125,62 @@ let DataForm = React.createClass({
         )
     }
 })
+/* ********************************************************* */
+/* ********* SHOW FORM FOR INSERT DATA ********************* */
+/* ********************************************************* */
 
-let DataFormEdit = React.createClass({
-    getInitialState: function () {
-        return {
-            letterEdit: '',
-            frequencyEdit: ''
-        }
-    },
 
-    handleLetterChangeEdit: function (e) {
-        this.setState({letterEdit: e.target.value})
-        console.log(this.state.letterEdit)
-        console.log(e.target.value)
-    },
-
-    handleFrequencyChangeEdit: function (e) {
-        this.setState({frequencyEdit: e.target.value})
-    },
-
-    handleIdChangeEdit: function (e) {
-        this.setState({dataId: e.target.value})
-        console.log(e.target.value)
-    },
-
-    handleSubmitEdit: function (e) {
-        e.preventDefault()
-        let dataId = this.props.fillEdit.dataId
-        let letter = this.state.letterEdit
-        let frequency = this.state.frequencyEdit
-        console.log(`${dataId} ${letter}`)
-        if (!letter || ! frequency) return
-        else {
-            this.props.onDataSubmitEdit({dataId: dataId, letterEdit: letter, frequencyEdit: frequency})
-            this.setState({letterEdit: ''})
-            this.setState({frequencyEdit: ''})
-        }
-    },
-
+/* ********************************************************* */
+/* ********************** GET ALL DATA ********************* */
+/* ********************************************************* */
+const ShowData = React.createClass({
     render: function () {
-        // console.log(this.props.fillEdit)
-        return (
-            <div className="row" id="formCreate">
-                <div className="col-sm-12">
-                    <form onSubmit={this.handleSubmitEdit} className="form-inline">
-                        <div className="form-group">
-                            <label>Letter</label>
-                            <input value={this.state.letterEdit} onChange={this.handleLetterChangeEdit} type="text" className="form-control" />
-                        </div>
-                        <div className="form-group">
-                            <label>Frequency:</label>
-                            <input value={this.state.frequencyEdit} onChange={this.handleFrequencyChangeEdit} type="number" className="form-control" />
-                        </div>
-                        <input value={this.props.fillEdit.dataId} onChange={this.handleIdChangeEdit} type="number" className="form-control" />
-                        <div className="form-group">
-                            <button className="btn btn btn-default" name="buttonCreate">Save Edit</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        return(
+            <tr>
+                <td>{this.props.letter}</td>
+                <td>{this.props.frequency}</td>
+                <td>
+                    <a onClick={this.handleGetUpdate} className="btn btn-warning">Edit</a>
+                    <a id={`${this.props.id}`} onClick={this.handleDelete} className="btn btn-danger">Delete</a>
+                </td>
+            </tr>
         )
+    },
+
+    handleDelete: function (e) {
+        let id = e.target.id
+        this.props.onDataDeleteShowData(id)
+    },
+
+    handleGetUpdate: function () {
+        this.props.getDataUpdateShowData(this.props.id)
+    }
+})
+
+const DataList = React.createClass({
+    render: function () {
+        let dataNodes = this.props.data.map(function (data) {
+            return(
+                <ShowData getDataUpdateShowData={this.getDataId}
+                          onDataDeleteShowData={this.dataDeleteDataList}
+                          key={data.dataId} id={data.dataId} letter={data.letter} frequency={data.frequency}
+                />)
+        }.bind(this))
+        return(
+            <tbody>{dataNodes}</tbody>
+        )
+    },
+
+    dataDeleteDataList: function (id) {
+        this.props.handleDeleteDataBox(id)
+    },
+    getDataId: function (id) {
+        this.props.handleGetDataBox(id)
     }
 })
 
 
 const Data = React.createClass({
-
     getInitialState: function () {
         return {
             data:[],
@@ -195,6 +212,7 @@ const Data = React.createClass({
             dataType: 'json',
             cache: false,
             success: function (response) {
+                // console.log(response)
                 this.setState({
                     dataEdit: {
                         dataId: response.dataId,
@@ -234,7 +252,6 @@ const Data = React.createClass({
     },
 
     handleDataSubmitEdit: function (data) {
-        console.log(data)
         let datas = this.state.data
         let newDatas = datas.concat([data])
         this.setState({data: newDatas})
@@ -277,14 +294,7 @@ const Data = React.createClass({
                 <Nav/>
                 <div className="container">
 
-                    <div className="row">
-                        <div className="col-sm-12">
-                            <button name="showFormCreate" className="btn btn-primary">+Add</button>
-                        </div>
-                    </div>
-
-                    <DataForm onDataSubmit={this.handleDataSubmit}/>
-                    <DataFormEdit fillEdit={this.state.dataEdit} onDataSubmitEdit={this.handleDataSubmitEdit}/>
+                    <DataForm dataUpdate={this.state.dataEdit} onDataSubmitEdit={this.handleDataSubmitEdit} onDataSubmit={this.handleDataSubmit}/>
 
                     <div className="row">
                         <div className="col-sm-12">
@@ -309,51 +319,9 @@ const Data = React.createClass({
         )
     }
 })
-
-
-
-const DataList = React.createClass({
-    render: function () {
-        let dataNodes = this.props.data.map(function (data) {
-            return(<ShowData getDataUpdateDataBox={this.getDataId} onDataDeleteShowData={this.dataDeleteDataList} key={data.dataId} id={data.dataId} letter={data.letter} frequency={data.frequency}/>)
-        }.bind(this))
-        return(
-            <tbody>{dataNodes}</tbody>
-        )
-    },
-
-    dataDeleteDataList: function (id) {
-        this.props.handleDeleteDataBox(id)
-    },
-    getDataId: function (id) {
-        this.props.handleGetDataBox(id)
-    }
-})
-
-const ShowData = React.createClass({
-    render: function () {
-        return(
-            <tr>
-                <td>{this.props.letter}</td>
-                <td>{this.props.frequency}</td>
-                <td>
-                    <a onClick={this.handleGetUpdate} className="btn btn-warning">Edit</a>
-                    <a id={`${this.props.id}`} onClick={this.handleDelete} className="btn btn-danger">Delete</a>
-                </td>
-            </tr>
-
-        )
-    },
-
-    handleDelete: function (e) {
-        let id = e.target.id
-        this.props.onDataDeleteShowData(id)
-    },
-
-    handleGetUpdate: function () {
-        this.props.getDataUpdateDataBox(this.props.id)
-    }
-})
+/* ********************************************************* */
+/* ********************** GET ALL DATA ********************* */
+/* ********************************************************* */
 
 const DataDate = React.createClass({
     render: function () {
@@ -382,7 +350,7 @@ const DataDate = React.createClass({
 ReactDOM.render(
     (
         <Router history={browserHistory}>
-            <Route path="/" component={HomePanel}/>
+            <Route path="/" component={Index}/>
             <Route path="/data" component={Data}/>
             <Route path="/dataDate" component={DataDate}/>
         </Router>
