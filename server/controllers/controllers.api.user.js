@@ -46,6 +46,7 @@ module.exports = {
             else {
                 return res.status(200).json({
                     token: jwt.sign({
+                        username: user.username,
                         email: user.email
                     }, process.env.SECRET)
                 })

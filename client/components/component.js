@@ -10,6 +10,7 @@ const Nav = React.createClass({
 
     handleLogout: function () {
         Auth.deauthenticateUser()
+        browserHistory.push('/')
     },
 
     render: function () {
@@ -48,7 +49,14 @@ const Index = React.createClass({
             success: function (response) {
                 this.setState({user: response})
                 Auth.authenticateUser(response)
-            }.bind(this)
+                // this.props.router.replace('/')
+                browserHistory.push('/')
+            }.bind(this),
+            error: function (err) {
+                alert('username or password is wrong')
+                // this.props.router.replace('/')
+                browserHistory.push('/')
+            }
         })
     },
 
@@ -68,7 +76,7 @@ const Index = React.createClass({
                         <div className="row">
                             <div className="col-sm-12">
                                 <div className="jumbotron text-center">
-                                    <h1>THIS IS INDEX</h1>
+                                    <h1 className="text-uppercase">welcome {Auth.getUser().username}</h1>
                                 </div>
                             </div>
                         </div>
@@ -380,7 +388,7 @@ const DataDate = React.createClass({
                                     Welcome to Dashboard Hactiv8
                                 </div>
                                 <div className="panel-body">
-                                    <h1>Welcome to Data Date</h1>
+                                    <h1>Welcome {Auth.getUser().username}</h1>
                                 </div>
                             </div>
                         </div>
@@ -506,6 +514,8 @@ const Register = React.createClass({
             success: function (response) {
                 this.setState({user: response})
                 Auth.authenticateUser(response)
+                // this.props.router.replace('/')
+                browserHistory.push('/')
             }.bind(this)
         })
     },
