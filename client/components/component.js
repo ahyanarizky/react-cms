@@ -443,11 +443,65 @@ const Login = React.createClass({
                     </div>
                     <div className="form-group">
                         <div className="col-sm-offset-2 col-sm-10">
-                            <button name="buttonLogin" className="btn btn-default">Submit</button>
-                            <a href="register.html" name="buttonRegister" className="btn btn-default pull-right">Register</a>
+                            <button name="buttonLogin" className="btn btn-success">Submit</button>
+                            <Link to="/register"><button className="btn btn-primary pull-right">Register</button></Link>
                         </div>
                     </div>
                 </form>
+            </div>
+        )
+    }
+})
+
+const Register = React.createClass({
+    getInitialState: function () {
+        return {
+            username: '',
+            password: ''
+        }
+    },
+
+    render: function () {
+        return(
+            <div className="container">
+
+                <h1 className="text-center">Register</h1>
+
+                <div className="row">
+                    <div className="col-sm-8 col-sm-offset-2">
+                        <form className="form-horizontal">
+                            <div className="form-group">
+                                <label className="control-label col-sm-2">username:</label>
+                                <div className="col-sm-10">
+                                    <input type="text" className="form-control" placeholder="Enter username" />
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label className="control-label col-sm-2">Email:</label>
+                                <div className="col-sm-10">
+                                    <input type="email" className="form-control" placeholder="Enter email" />
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label className="control-label col-sm-2">Password:</label>
+                                <div className="col-sm-10">
+                                    <input type="password" className="form-control" placeholder="Enter password" />
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label className="control-label col-sm-2">Confirm Password:</label>
+                                <div className="col-sm-10">
+                                    <input type="password" className="form-control" placeholder="Enter confirm password" />
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <div className="col-sm-offset-2 col-sm-10">
+                                    <button className="btn btn-default">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         )
     }
@@ -460,6 +514,7 @@ ReactDOM.render(
             <Route path="/data" component={Data}/>
             <Route path="/dataDate" component={DataDate}/>
             <Route path="/login" component={Login}/>
+            <Route path="/register" component={Register}/>
         </Router>
     ), document.getElementById('content')
 )
