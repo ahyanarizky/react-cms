@@ -96,7 +96,6 @@ let DataForm = React.createClass({
     },
 
     render: function () {
-        console.log(this.props.dataUpdate)
         return (
             <div className="row" id="formCreate">
                 <div className="col-sm-12">
@@ -253,7 +252,12 @@ const Data = React.createClass({
 
     handleDataSubmitEdit: function (data) {
         let datas = this.state.data
-        let newDatas = datas.concat([data])
+        let newDatas = datas.map(function (e) {
+            console.log(e.dataId)
+            if (e.dataId == data.dataId) return data
+            else return e
+        })
+        console.log(newDatas)
         this.setState({data: newDatas})
         $.ajax({
             url: `http://localhost:3000/api/data`,
