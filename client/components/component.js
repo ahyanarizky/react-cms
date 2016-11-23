@@ -457,8 +457,57 @@ const Register = React.createClass({
     getInitialState: function () {
         return {
             username: '',
-            password: ''
+            email: '',
+            password: '',
+            confirmPassword: '',
         }
+    },
+
+    handleUsernameChange: function (e) {
+        this.setState({username: e.target.value})
+    },
+
+    handlePasswordChange: function (e) {
+        this.setState({password: e.target.value})
+    },
+
+    handleEmailChange: function (e) {
+        this.setState({email: e.target.value})
+    },
+
+    handleConfirmPasswordChange: function (e) {
+        this.setState({confirmPassword: e.target.value})
+    },
+
+    onRegisterSubmit: function (e) {
+        e.preventDefault()
+        let username = this.state.username.trim()
+        let email = this.state.email.trim()
+        let password = this.state.password.trim()
+        let confirmPassword = this.state.confirmPassword.trim()
+        if (username && email && password && confirmPassword) {
+            this.handleRegister({username: username, email: email, password: password, confirmPassword: confirmPassword})
+            this.setState({username: ''})
+            this.setState({email: ''})
+            this.setState({password: ''})
+            this.setState({confirmPassword: ''})
+        }
+        else {
+            return
+        }
+    },
+
+    handleRegister: function (user) {
+        $.ajax({
+            url: `http://localhost:3000/api/user/register`,
+            dataType: 'json',
+            type: 'post',
+            data: user,
+            success: function (response) {
+                this.setState({user: response})
+                Auth.authenticateUser(response)
+            }.bind(this)
+        })
     },
 
     render: function () {
@@ -469,29 +518,29 @@ const Register = React.createClass({
 
                 <div className="row">
                     <div className="col-sm-8 col-sm-offset-2">
-                        <form className="form-horizontal">
+                        <form className="form-horizontal" onSubmit={this.onRegisterSubmit}>
                             <div className="form-group">
                                 <label className="control-label col-sm-2">username:</label>
                                 <div className="col-sm-10">
-                                    <input type="text" className="form-control" placeholder="Enter username" />
+                                    <input value={this.state.username} onChange={this.handleUsernameChange} type="text" className="form-control" placeholder="Enter username" />
                                 </div>
                             </div>
                             <div className="form-group">
                                 <label className="control-label col-sm-2">Email:</label>
                                 <div className="col-sm-10">
-                                    <input type="email" className="form-control" placeholder="Enter email" />
+                                    <input value={this.state.email} onChange={this.handleEmailChange} type="email" className="form-control" placeholder="Enter email" />
                                 </div>
                             </div>
                             <div className="form-group">
                                 <label className="control-label col-sm-2">Password:</label>
                                 <div className="col-sm-10">
-                                    <input type="password" className="form-control" placeholder="Enter password" />
+                                    <input value={this.state.password} onChange={this.handlePasswordChange} type="password" className="form-control" placeholder="Enter password" />
                                 </div>
                             </div>
                             <div className="form-group">
                                 <label className="control-label col-sm-2">Confirm Password:</label>
                                 <div className="col-sm-10">
-                                    <input type="password" className="form-control" placeholder="Enter confirm password" />
+                                    <input value={this.state.confirmPassword} onChange={this.handleConfirmPasswordChange} type="password" className="form-control" placeholder="Enter confirm password" />
                                 </div>
                             </div>
                             <div className="form-group">
