@@ -60,7 +60,6 @@ const HomePage = React.createClass({
 
 const DataPage = React.createClass({
     render: function() {
-      console.log('datapage');
         return (
             <div>
                 <Navbar/>
@@ -72,37 +71,31 @@ const DataPage = React.createClass({
 
 const DataContent = React.createClass({
     getInitialState: function() {
-      console.log('getinitdatacontent');
         return {data: []}
     },
     loadData: function() {
-      console.log('ajaxloaddata');
-      console.log('this', this);
         $.ajax({
             url: this.props.url,
             dataType: 'json',
             cache: false,
             success: function(response) {
-              console.log(response);
                 this.setState({data: response})
-                console.log('state after ajax response :', this.state.data);
             }.bind(this),
             error: function(xhr, status, err) {
-                console.log('error loadData');
                 console.error(this.props.url, status, err.toString());
             }.bind(this)
         })
     },
     postData: function(objectFromFormAdd) {
       var recentState = this.state.data
-      this.setState({data: [objectFromFormAdd]})
       $.ajax({
         url: this.props.url,
         dataType: 'json',
         method: 'post',
         data: objectFromFormAdd,
         success: function(response) {
-          this.setState({data: response})
+          var newPost = recentState.concat([response])
+          this.setState({data: newPost})
         }.bind(this),
         error: function(xhr, status, err) {
             this.setState({data: recentState})
@@ -111,16 +104,17 @@ const DataContent = React.createClass({
       })
     },
     deleteData: function(data_id) {
+      console.log('data_id :',data_id);
       var del = confirm('Are you sure want to delete this data ?')
       if (del) {
         $.ajax({
           url: this.props.url,
+          method: 'DELETE',
           dataType: 'json',
-          cache: false,
           data: {
             id: data_id
           },
-          success: function() {
+          success: function(response) {
             console.log('success');
             this.loadData()
           }.bind(this),
@@ -135,19 +129,17 @@ const DataContent = React.createClass({
       }
     },
     render: function() {
-      console.log('render DataContent');
         return (
             <div className="container">
                 <div className="jumbotron">
                     <h1>Welcome to Data Page</h1>
                 </div>
-                <ButtonAdd/>
+                <ButtonAdd postDataFromDataContent={this.postData}/>
                 <TableDataBox dataContentState={this.state.data} funcDelete={this.deleteData}/>
             </div>
         )
     },
     componentDidMount: function() {
-      console.log('componentDidMount');
         this.loadData()
     }
 
@@ -155,8 +147,6 @@ const DataContent = React.createClass({
 
 const TableDataBox = React.createClass({
     render: function() {
-      console.log('render tableDataBox');
-      console.log('tableDataBox data:', this.props.dataContentState);
         return (
             <div className="tableDataBox">
                 <h1>CMS Table</h1>
@@ -168,12 +158,9 @@ const TableDataBox = React.createClass({
 
 const TableData = React.createClass({
     render: function() {
-      console.log(typeof(this.props.dataContentState));
         var tableContent = this.props.dataContentState.map(function(data) {
-            console.log('each data in table data :', data);
-            return (<EachData key={data.dataId} letter={data.letter} frequency={data.frequency} funcDelete={this.props.funcDelete}/>)
+            return (<EachData key={data.dataId} letter={data.letter} frequency={data.frequency} dataId={data.dataId} funcDelete={this.props.funcDelete}/>)
         }.bind(this))
-        console.log('tableContent :', tableContent);
         return (
             <table className="table table-hover">
                 <thead className="thead-inverse">
@@ -193,10 +180,10 @@ const TableData = React.createClass({
 
 const EachData = React.createClass({
     handleDelete: function() {
-        this.props.funcDelete(this.props.key)
+        console.log('this props :', this.props);
+        this.props.funcDelete(this.props.dataId)
     },
     render: function() {
-      console.log('render each data');
         return (
             <tr>
                 <td>{this.props.letter}</td>
@@ -222,10 +209,8 @@ const ButtonAdd = React.createClass({
     },
     render: function() {
         if (this.state.isAdding) {
-          console.log('render form add');
-            return (<FormAdd hideForm={this.hideFormAdd} url="http://localhost:3000/api/data" handleDataSubmit={this.handleDataSubmit}/>)
+            return (<FormAdd hideForm={this.hideFormAdd} postDataFromDataContent={this.props.postDataFromDataContent}/>)
         } else {
-          console.log('render button add');
             return (
                 <div>
                     <button className="btn btn-primary" onClick={this.showFormAdd}>
@@ -242,25 +227,7 @@ const ButtonAdd = React.createClass({
     },
     hideFormAdd: function() {
         this.setState({isAdding: false})
-    },
-    handleDataSubmit: function(value) {
-        var dataNow = this.state.data
-        this.setState({data: dataNow})
-        $.ajax({
-            url: this.props.url,
-            dataType: 'json',
-            method: 'post',
-            data: value,
-            success: function(response) {
-                this.setState({data: response})
-            }.bind(this),
-            error: function(xhr, status, err) {
-                this.setState({data: dataNow})
-                console.error(this.props.url, status, err.toString());
-            }.bind(this)
-        })
     }
-
 })
 
 const FormAdd = React.createClass({
@@ -269,29 +236,26 @@ const FormAdd = React.createClass({
     },
     handleLetterChange: function(e) {
         this.setState({letter: e.target.value})
-        console.log('letter state', this.state.letter);
     },
     handleFrequencyChange: function(e) {
         this.setState({frequency: e.target.value})
-        console.log('freq state', this.state.frequency);
     },
-    handleSubmit: function(e) {
-        console.log('this is submit');
-        e.preventDefault()
+    handleSubmit: function() {
         var letter = this.state.letter.trim()
         var frequency = this.state.frequency.trim()
+        var upLetter = letter.toUpperCase()
+        var upFreq = frequency.toUpperCase()
         if (!letter || !frequency) {
             return
         } else {
-            this.props.handleDataSubmit({letter: letter, frequency: frequency})
+            this.props.postDataFromDataContent({letter: upLetter, frequency: upFreq})
             this.setState({letter: '', frequency: ''})
         }
     },
     render: function() {
-        console.log('state', this.state);
         return (
             <div>
-                <form className="form-inline" onSubmit={this.props.handleSubmit}>
+                <form className="form-inline" onSubmit={this.handleSubmit}>
                     <div className="form-group">
                         <label>Letter</label>
                         <input type="text" className="form-control let-freq" id="input-add-letter" placeholder="Enter Letter" value={this.state.letter} onChange={this.handleLetterChange}/>
@@ -302,7 +266,7 @@ const FormAdd = React.createClass({
                     </div>
                     <button type="submit" className="btn btn-primary btn-in">Post</button>
                     <span>
-                        <button type="button" className="btn btn-default" onClick={this.props.hideForm}>Cancel</button>
+                        <a role="button" className="btn btn-default" onClick={this.props.hideForm}>Cancel</a>
                     </span>
                 </form>
             </div>

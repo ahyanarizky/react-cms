@@ -53,15 +53,27 @@ module.exports = {
     },
     deleteData: function(req, res) {
       console.log('controller delete');
+      console.log(req.body);
         Data.remove({
             dataId: req.body.id
         }, function(err, data) {
             if (err) {
                 res.json({ message: `Error : ${err}` })
             } else {
-              console.log(data);
                 res.json(data)
             }
         })
+    },
+    deleteAllData: function(req, res) {
+      Data.remove({}, function(err, data) {
+        if (err) {
+            res.json({ message: `Error : ${err}` })
+        } else {
+            res.json({
+              data: data,
+              message: 'all data deleted'
+            })
+        }
+      })
     }
 }

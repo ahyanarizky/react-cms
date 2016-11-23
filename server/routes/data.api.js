@@ -7,5 +7,6 @@ router.get('/:id', controller.getOneData)
 router.post('/', controller.createData)
 router.put('/:id', controller.updateData)
 router.delete('/', controller.deleteData)
+router.delete('/delete_all', controller.deleteAllData)
 
 module.exports = router;
