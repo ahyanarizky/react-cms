@@ -8,6 +8,10 @@ const browserHistory = ReactRouter.browserHistory
 /* ********************************************************* */
 const Nav = React.createClass({
 
+    handleLogout: function () {
+        Auth.deauthenticateUser()
+    },
+
     render: function () {
         return(
             <nav className="navbar navbar-inverse">
@@ -18,7 +22,7 @@ const Nav = React.createClass({
                         <li><Link to="/dataDate">Date Date</Link></li>
                     </ul>
                     <ul className="nav navbar-nav navbar-right">
-                        <li><Link to="/">Logout</Link></li>
+                        <li onClick={this.handleLogout}><Link>Logout</Link></li>
                     </ul>
                 </div>
             </nav>
@@ -34,21 +38,44 @@ const Nav = React.createClass({
 /* *********************** INDEX *************************** */
 /* ********************************************************* */
 const Index = React.createClass({
+
+    handleLogin: function (user) {
+        $.ajax({
+            url: `http://localhost:3000/api/user/login`,
+            dataType: 'json',
+            type: 'post',
+            data: user,
+            success: function (response) {
+                this.setState({user: response})
+                Auth.authenticateUser(response)
+            }.bind(this)
+        })
+    },
+
     render: function () {
-        return(
-            <div>
-                <Nav/>
-                <div className="container">
-                    <div className="row">
-                        <div className="col-sm-12">
-                            <div className="jumbotron text-center">
-                                <h1>THIS IS INDEX</h1>
+        if (!Auth.getToken()) {
+            return(
+                <div>
+                    <Login onLoginSubmit={this.handleLogin} />
+                </div>
+            )
+        }
+        else {
+            return(
+                <div>
+                    <Nav/>
+                    <div className="container">
+                        <div className="row">
+                            <div className="col-sm-12">
+                                <div className="jumbotron text-center">
+                                    <h1>THIS IS INDEX</h1>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        )
+            )
+        }
     }
 })
 /* ********************************************************* */
@@ -293,40 +320,53 @@ const Data = React.createClass({
     },
 
     render: function () {
-        return(
-            <div>
-                <Nav/>
-                <div className="container">
+        if (!Auth.getToken()) {
+            return(
+                <div>
+                    <Login />
+                </div>
+            )
+        }
+        else {
+            return(
+                <div>
+                    <Nav/>
+                    <div className="container">
 
-                    <DataForm dataUpdate={this.state.dataEdit} onDataSubmitEdit={this.handleDataSubmitEdit} onDataSubmit={this.handleDataSubmit}/>
+                        <DataForm dataUpdate={this.state.dataEdit} onDataSubmitEdit={this.handleDataSubmitEdit} onDataSubmit={this.handleDataSubmit}/>
 
-                    <div className="row">
-                        <div className="col-sm-12">
-                            <div className="table-responsive">
-                                <table className="table table-bordered">
-                                    <thead>
-                                    <tr>
-                                        <td>Letter</td>
-                                        <td>Frequency</td>
-                                        <td>Actions</td>
-                                    </tr>
-                                    </thead>
+                        <div className="row">
+                            <div className="col-sm-12">
+                                <div className="table-responsive">
+                                    <table className="table table-bordered">
+                                        <thead>
+                                        <tr>
+                                            <td>Letter</td>
+                                            <td>Frequency</td>
+                                            <td>Actions</td>
+                                        </tr>
+                                        </thead>
 
-                                    <DataList handleGetDataBox={this.handleGetOneDataUpdateDataBox} handleDeleteDataBox={this.handleDeleteDataBox} data={this.state.data}/>
-                                </table>
+                                        <DataList handleGetDataBox={this.handleGetOneDataUpdateDataBox} handleDeleteDataBox={this.handleDeleteDataBox} data={this.state.data}/>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
+                    </div>
                 </div>
-            </div>
-        )
+            )
+        }
     }
 })
 /* ********************************************************* */
 /* ********************** GET ALL DATA ********************* */
 /* ********************************************************* */
 
+
+/* ********************************************************* */
+/* ********************** DataDate ************************* */
+/* ********************************************************* */
 const DataDate = React.createClass({
     render: function () {
         return(
@@ -350,6 +390,68 @@ const DataDate = React.createClass({
         )
     }
 })
+/* ********************************************************* */
+/* ********************** DataDate ************************* */
+/* ********************************************************* */
+
+const Login = React.createClass({
+
+    getInitialState: function () {
+        return {
+            username: '',
+            password: ''
+        }
+    },
+
+    handleUsernameChange: function (e) {
+        this.setState({username: e.target.value})
+    },
+
+    handlePasswordChange: function (e) {
+        this.setState({password: e.target.value})
+    },
+
+    handleLogin: function (e) {
+        e.preventDefault()
+        let username = this.state.username.trim()
+        let password = this.state.password.trim()
+        if (username && password) {
+            this.props.onLoginSubmit({username: username, password: password})
+            this.setState({username: ''})
+            this.setState({password: ''})
+        }
+        else {
+            return
+        }
+    },
+
+    render: function () {
+        return(
+            <div className="container">
+                <form className="form-horizontal" onSubmit={this.handleLogin}>
+                    <div className="form-group">
+                        <label className="control-label col-sm-2">Username:</label>
+                        <div className="col-sm-10">
+                            <input type="text" value={this.state.username} onChange={this.handleUsernameChange} className="form-control" placeholder="Enter username" />
+                        </div>
+                    </div>
+                    <div className="form-group">
+                        <label className="control-label col-sm-2">Password:</label>
+                        <div className="col-sm-10">
+                            <input type="password" value={this.state.password} onChange={this.handlePasswordChange} className="form-control" placeholder="Enter password" />
+                        </div>
+                    </div>
+                    <div className="form-group">
+                        <div className="col-sm-offset-2 col-sm-10">
+                            <button name="buttonLogin" className="btn btn-default">Submit</button>
+                            <a href="register.html" name="buttonRegister" className="btn btn-default pull-right">Register</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        )
+    }
+})
 
 ReactDOM.render(
     (
@@ -357,6 +459,7 @@ ReactDOM.render(
             <Route path="/" component={Index}/>
             <Route path="/data" component={Data}/>
             <Route path="/dataDate" component={DataDate}/>
+            <Route path="/login" component={Login}/>
         </Router>
     ), document.getElementById('content')
 )
