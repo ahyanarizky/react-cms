@@ -70,18 +70,6 @@ const Home = React.createClass({
   }
 })
 
-const Dashboard = React.createClass({
-  render: function(){
-    return(
-      <div>
-        <div className="container">
-          <h1>Dashboard</h1>
-        </div>
-      </div>
-    )
-  }
-})
-
 const Login = React.createClass({
   getInitialState(){
     return({
@@ -246,6 +234,181 @@ const Register = React.createClass({
   }
 })
 
+const Dashboard = React.createClass({
+  render: function(){
+    return(
+      <div>
+        <div className="container">
+          <h1>Dashboard</h1>
+          <p>Welcome {getUser().username} | {getUser().email}</p>
+        </div>
+      </div>
+    )
+  }
+})
+
+const DataBox = React.createClass({
+  getInitialState(){
+    return({
+      data: []
+    })
+  },
+  load_all_data(){
+    $.ajax({
+      url: 'http://localhost:3000/api/datas/',
+      success: function(all_data){
+        this.setState({
+          data: all_data
+        })
+      }.bind(this)
+    })
+  },
+  componentDidMount(){
+    this.load_all_data()
+  },
+  handleDataSubmit(letter, frequency){
+    console.log(`test`);
+    $.post({
+      url: 'http://localhost:3000/api/datas',
+      data: {
+        letter: letter,
+        frequency: frequency
+      },
+      success: function(data){
+        console.log(data);
+        this.setState({
+          data: data
+        })
+      }.bind(this)
+    })
+  },
+  render: function(){
+    return(
+      <div className="container">
+        <DataFormAdd onDataSubmit={this.handleDataSubmit}/>
+        <DataList data={this.state.data} />
+      </div>
+    )
+  }
+})
+
+const Data = React.createClass({
+  render(){
+    return(
+      <tr>
+        <td>
+          {this.props.letter}
+        </td>
+        <td>
+          {this.props.frequency}
+        </td>
+        <td>
+          <button type="button" className="btn btn-warning" >Edit</button>
+          <button type="button" className="btn btn-danger" >Delete</button>
+        </td>
+      </tr>
+    )
+  }
+})
+
+const DataList = React.createClass({
+  render(){
+    var all_Data = this.props.data.map((data) => {
+      return (
+        <Data key={data._id} dataId={data._id} letter={data.letter} frequency={data.frequency} />
+      )
+    })
+    return(
+      <table className="table table-striped" id="table">
+        <thead>
+          <tr>
+            <th className="col-sm-4">Letter</th>
+            <th className="col-sm-4">Frequency</th>
+            <th className="col-sm-4">Action</th>
+          </tr>
+        </thead>
+        <tbody id="body_table">
+          {all_Data}
+        </tbody>
+      </table>
+    )
+  }
+})
+
+const DataFormAdd = React.createClass({
+  getInitialState(){
+    return({
+      letter: '',
+      frequency: '',
+      isFormOpen: false
+    })
+  },
+  onFormOpen(){
+    this.setState({
+      isFormOpen: true
+    })
+  },
+  onFormClose(){
+    this.setState({
+      isFormOpen: false
+    })
+  },
+  handleChangeLetter(e){
+    this.setState({
+      letter: e.target.value
+    })
+  },
+  handleChangeFreq(e){
+    this.setState({
+      frequency: e.target.value
+    })
+  },
+  handleDataSubmit(e){
+    e.preventDefault()
+    var letter = this.state.letter.trim()
+    var frequency = this.state.frequency.trim()
+
+    if(!letter || !frequency){
+      return
+    }else{
+      this.props.onDataSubmit(letter, frequency)
+
+      this.setState({
+        text: '',
+        frequency: '',
+        isFormOpen: false
+      })
+    }
+  },
+  render(){
+    if(this.state.isFormOpen){
+      return(
+        <div>
+          <button type="button" onClick={this.onFormClose} className="btn btn-default">Hide</button>
+          <form onSubmit={this.handleDataSubmit} className="form-inline">
+            <div className="form-group">
+              <label htmlFor="letter">Letter :</label>
+              <input type="text" onChange={this.handleChangeLetter} className="form-control" />
+            </div>
+             <div className="form-group">
+               <label htmlFor="frequency">Frequency :</label>
+               <input type="text" onChange={this.handleChangeFreq} className="form-control" />
+             </div>
+             <input type="hidden" id="id" />
+             <button type="submit" className="btn btn-success" id="btn_add">Add</button>
+           </form>
+        </div>
+      )
+    }else{
+      return(
+        <div>
+          <button type="button" onClick={this.onFormOpen} className="btn btn-default">Add</button>
+        </div>
+      )
+    }
+  }
+})
+
 function authDashboard(nextState, replace){
   if(!localStorage.getItem('token')){
     replace({
@@ -270,8 +433,31 @@ ReactDOM.render(
         <Route path="/login" component={!getUser() ? Login : Dashboard} />
         <Route path="/register" component={!getUser() ? Register : Dashboard} />
         <Route path="/dashboard" component={Dashboard} onEnter={authDashboard} />
+        <Route path="/data" component={DataBox} onEnter={authDashboard} />
         <Route path="/logout" onEnter={processLogout} />
       </Route>
     </Router>
   ), document.getElementById('content')
 )
+
+/*
+<div className="col-sm-4">
+<label htmlFor="search_letter">Letter :</label>
+<input type="text" className="form-control" id="search_letter" placeholder="A" />
+</div>
+<div className="col-sm-4">
+<label htmlFor="search_frequency">Frequency :</label>
+<input type="text" className="form-control" id="search_frequency" placeholder="0.00000" />
+</div>
+
+<table className="table table-striped" id="table">
+<thead>
+<tr>
+<th className="col-sm-4">Letter</th>
+<th className="col-sm-4">Frequency</th>
+<th className="col-sm-4">Action</th>
+</tr>
+</thead>
+<tbody id="body_table"></tbody>
+</table>
+*/
