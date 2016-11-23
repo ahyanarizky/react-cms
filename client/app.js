@@ -93,6 +93,23 @@ const DataContent = React.createClass({
             }.bind(this)
         })
     },
+    postData: function(objectFromFormAdd) {
+      var recentState = this.state.data
+      this.setState({data: [objectFromFormAdd]})
+      $.ajax({
+        url: this.props.url,
+        dataType: 'json',
+        method: 'post',
+        data: objectFromFormAdd,
+        success: function(response) {
+          this.setState({data: response})
+        }.bind(this),
+        error: function(xhr, status, err) {
+            this.setState({data: recentState})
+            console.error(this.props.url, status, err.toString());
+        }.bind(this)
+      })
+    },
     deleteData: function(data_id) {
       var del = confirm('Are you sure want to delete this data ?')
       if (del) {
@@ -189,7 +206,7 @@ const EachData = React.createClass({
                         <button className="btn btn-success">
                             <span className="glyphicon glyphicon-edit"></span>
                             Update</button>
-                        <button className="btn btn-danger" onClick={this.handleDelete}>
+                        <button className="btn btn-danger inline-btn" onClick={this.handleDelete}>
                             <span className="glyphicon glyphicon-trash"></span>
                             Delete</button>
                     </span>
