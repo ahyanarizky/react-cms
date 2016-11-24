@@ -111,6 +111,8 @@ const Login = React.createClass({
           }else{
             alert('input is wrong')
             this.setState({
+              username: '',
+              password: '',
               error: true,
               token: ''
             })
@@ -277,7 +279,7 @@ const DataBox = React.createClass({
     this.setState({
       data : test
     })
-    
+
     $.post({
       url: 'http://localhost:3000/api/datas',
       data: {
@@ -431,6 +433,15 @@ function authDashboard(nextState, replace){
   }
 }
 
+function authIndex(nextState, replace){
+  if(localStorage.getItem('token')){
+    replace({
+      pathname: '/dashboard',
+      // state: { nextPathname: nextState.location.pathname }
+    })
+  }
+}
+
 function processLogout(nextState, replace){
   localStorage.removeItem('token')
   replace({
@@ -443,8 +454,8 @@ ReactDOM.render(
   (
     <Router history={hashHistory}>
       <Route path="/" component={App}>
-        <Route path="/login" component={!getUser() ? Login : Dashboard} />
-        <Route path="/register" component={!getUser() ? Register : Dashboard} />
+        <Route path="/login" component={Login} onEnter={authIndex} />
+        <Route path="/register" component={Register} onEnter={authIndex} />
         <Route path="/dashboard" component={Dashboard} onEnter={authDashboard} />
         <Route path="/data" component={DataBox} onEnter={authDashboard} />
         <Route path="/logout" onEnter={processLogout} />
