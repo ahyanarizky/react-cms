@@ -11,14 +11,14 @@ let newData = (req, res) => {
     if(err){
       res.status(400).json(err)
     }else{
-      // res.status(200).json(new_data)
-      Data.find({}, (err, all_data) => {
-        if(err){
-          res.status(400).json(err)
-        }else{
-          res.status(200).json(all_data)
-        }
-      }).sort({_id: -1})
+      res.status(200).json(new_data)
+      // Data.find({}, (err, all_data) => {
+      //   if(err){
+      //     res.status(400).json(err)
+      //   }else{
+      //     res.status(200).json(all_data)
+      //   }
+      // }).sort({_id: -1})
     }
   })
 }
@@ -34,7 +34,7 @@ let showAllData = (req, res) => {
       }else{
         res.status(200).json(get_one)
       }
-    }).sort({_id: -1})
+    })
 
   }else if(req.query.frequency){
     Data.find({

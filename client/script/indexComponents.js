@@ -257,6 +257,7 @@ const DataBox = React.createClass({
     $.ajax({
       url: 'http://localhost:3000/api/datas/',
       success: function(all_data){
+        // console.log(all_data);
         this.setState({
           data: all_data
         })
@@ -267,7 +268,16 @@ const DataBox = React.createClass({
     this.load_all_data()
   },
   handleDataSubmit(letter, frequency){
-    console.log(`test`);
+    // console.log(this.state.data);
+    var test = this.state.data.concat({
+      letter: letter,
+      frequency: frequency
+    }).reverse()
+    // console.log(test.reverse());
+    this.setState({
+      data : test
+    })
+    
     $.post({
       url: 'http://localhost:3000/api/datas',
       data: {
@@ -275,10 +285,11 @@ const DataBox = React.createClass({
         frequency: frequency
       },
       success: function(data){
-        console.log(data);
-        this.setState({
-          data: data
-        })
+        // console.log(data);
+        this.load_all_data()
+        // this.setState({
+        //   data: data
+        // })
       }.bind(this)
     })
   },
@@ -313,11 +324,13 @@ const Data = React.createClass({
 
 const DataList = React.createClass({
   render(){
+    // console.log(this.props.data);
     var all_Data = this.props.data.map((data) => {
       return (
-        <Data key={data._id} dataId={data._id} letter={data.letter} frequency={data.frequency} />
+        <Data key={data._id || Date.now()} dataId={data._id} letter={data.letter} frequency={data.frequency} />
       )
     })
+    // console.log(all_Data);
     return(
       <table className="table table-striped" id="table">
         <thead>
