@@ -58,6 +58,10 @@ const App = React.createClass({
   }
 })
 
+// ---------------------------------
+// index
+// ---------------------------------
+
 const Home = React.createClass({
   render: function(){
     return(
@@ -236,6 +240,10 @@ const Register = React.createClass({
   }
 })
 
+// ---------------------------------
+// dashboard
+// ---------------------------------
+
 const Dashboard = React.createClass({
   render: function(){
     return(
@@ -248,6 +256,10 @@ const Dashboard = React.createClass({
     )
   }
 })
+
+// ---------------------------------
+// data
+// ---------------------------------
 
 const DataBox = React.createClass({
   getInitialState(){
@@ -271,13 +283,13 @@ const DataBox = React.createClass({
   },
   handleDataSubmit(letter, frequency){
     // console.log(this.state.data);
-    var test = this.state.data.concat({
+    var add = this.state.data.concat({
       letter: letter,
       frequency: frequency
     }).reverse()
     // console.log(test.reverse());
     this.setState({
-      data : test
+      data : add
     })
 
     $.post({
@@ -295,41 +307,46 @@ const DataBox = React.createClass({
       }.bind(this)
     })
   },
+  handleSaveData(id, letter, frequency){
+    var edit = this.state.data.map(data => data._id === id ? Object.assign({}, data, {letter: letter, frequency: frequency}) : data )
+    // console.log(this.state.data);
+
+    this.setState({
+      data: edit
+    })
+    // console.log(this.state.data);
+    $.ajax({
+      url: 'http://localhost:3000/api/datas/'+id,
+      method: 'PUT',
+      data: {
+        letter: letter,
+        frequency: frequency
+      },
+      success: function(new_data){
+        console.log(new_data);
+        // this.load_all_data()
+      }.bind(this)
+    })
+  },
   render: function(){
     return(
       <div className="container">
         <DataFormAdd onDataSubmit={this.handleDataSubmit}/>
-        <DataList data={this.state.data} />
+        <DataList data={this.state.data} onSaveData={this.handleSaveData} />
       </div>
     )
   }
 })
 
-const Data = React.createClass({
-  render(){
-    return(
-      <tr>
-        <td>
-          {this.props.letter}
-        </td>
-        <td>
-          {this.props.frequency}
-        </td>
-        <td>
-          <button type="button" className="btn btn-warning" >Edit</button>
-          <button type="button" className="btn btn-danger" >Delete</button>
-        </td>
-      </tr>
-    )
-  }
-})
-
 const DataList = React.createClass({
+  handleSaveData(id, letter, frequency){
+    this.props.onSaveData(id, letter, frequency)
+  },
   render(){
     // console.log(this.props.data);
     var all_Data = this.props.data.map((data) => {
       return (
-        <Data key={data._id || Date.now()} dataId={data._id} letter={data.letter} frequency={data.frequency} />
+        <Data key={data._id || Date.now()} dataId={data._id} letter={data.letter} frequency={data.frequency} onSaveData={this.handleSaveData} />
       )
     })
     // console.log(all_Data);
@@ -347,6 +364,86 @@ const DataList = React.createClass({
         </tbody>
       </table>
     )
+  }
+})
+
+const Data = React.createClass({
+  getInitialState(){
+    return({
+        isEdit: false,
+        letter: this.props.letter || '',
+        frequency: this.props.frequency || ''
+    })
+  },
+  onEditClick(){
+    this.setState({
+      isEdit: true
+    })
+  },
+  onCancelClick(e){
+    e.preventDefault()
+    this.setState({
+      isEdit: false
+    })
+  },
+  handleChangeLetter(e){
+    this.setState({
+      letter: e.target.value
+    })
+  },
+  handleChangeFreq(e){
+    this.setState({
+      frequency: e.target.value
+    })
+  },
+  onEditSave(e){
+    e.preventDefault()
+    var letter = this.state.letter.trim()
+    var frequency = this.state.frequency.trim()
+
+    if(!letter || !frequency){
+      return
+    }else{
+      this.props.onSaveData(this.props.dataId, letter, frequency)
+      this.setState({
+        letter: '',
+        frequency: '',
+        isEdit: false
+      })
+    }
+  },
+  render(){
+    if(this.state.isEdit){
+      return(
+        <tr>
+            <td className="form-group">
+              <input type="text" onChange={this.handleChangeLetter} value={this.state.letter} className="form-control" />
+            </td>
+             <td className="form-group">
+               <input type="text" onChange={this.handleChangeFreq} value={this.state.frequency} className="form-control" />
+             </td>
+            <td>
+              <button type="button" onClick={this.onEditSave} className="btn btn-warning" >Save</button>
+              <button type="button" onClick={this.onCancelClick} className="btn btn-danger" >Cancel</button>
+            </td>
+        </tr>
+      )
+    }else{
+      return(
+        <tr>
+          <td>
+            {this.props.letter}
+          </td>
+          <td>
+            {this.props.frequency}
+          </td>
+          <td>
+            <button type="button" onClick={this.onEditClick} className="btn btn-warning" >Edit</button>
+            <button type="button" className="btn btn-danger" >Delete</button>
+          </td>
+        </tr>
+      )
+    }
   }
 })
 
@@ -445,7 +542,7 @@ function authIndex(nextState, replace){
 function processLogout(nextState, replace){
   localStorage.removeItem('token')
   replace({
-    pathname: '/login',
+    pathname: '/',
     // state: { nextPathname: nextState.location.pathname }
   })
 }
@@ -463,25 +560,3 @@ ReactDOM.render(
     </Router>
   ), document.getElementById('content')
 )
-
-/*
-<div className="col-sm-4">
-<label htmlFor="search_letter">Letter :</label>
-<input type="text" className="form-control" id="search_letter" placeholder="A" />
-</div>
-<div className="col-sm-4">
-<label htmlFor="search_frequency">Frequency :</label>
-<input type="text" className="form-control" id="search_frequency" placeholder="0.00000" />
-</div>
-
-<table className="table table-striped" id="table">
-<thead>
-<tr>
-<th className="col-sm-4">Letter</th>
-<th className="col-sm-4">Frequency</th>
-<th className="col-sm-4">Action</th>
-</tr>
-</thead>
-<tbody id="body_table"></tbody>
-</table>
-*/
