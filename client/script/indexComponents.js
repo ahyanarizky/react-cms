@@ -192,7 +192,7 @@ const Register = React.createClass({
       return
     }else{
       $.post({
-        url: "http://localhost:3000/api/users/login",
+        url: "http://localhost:3000/api/users/",
         data: data_regis,
         success: function(new_user){
           localStorage.setItem('token', new_user.token)
@@ -275,6 +275,7 @@ const DataBox = React.createClass({
         this.setState({
           data: all_data
         })
+          console.log(this.state.data);
       }.bind(this)
     })
   },
@@ -324,7 +325,7 @@ const DataBox = React.createClass({
       },
       success: function(new_data){
         console.log(new_data);
-        // this.load_all_data()
+        this.load_all_data()
       }.bind(this)
     })
   },
@@ -340,47 +341,156 @@ const DataBox = React.createClass({
       method: 'DELETE',
       success: function(deleted_data){
         console.log(deleted_data);
-        // this.load_all_data()
+        this.load_all_data()
       }.bind(this)
     })
   },
   render: function(){
     return(
       <div className="container">
-        <DataFormAdd onDataSubmit={this.handleDataSubmit}/>
+        <DataFormAdd onDataSubmit={this.handleDataSubmit} />
         <DataList data={this.state.data} onSaveData={this.handleSaveData} onDeleteData={this.handleDeleteData} />
       </div>
     )
   }
 })
 
+const DataSearch = React.createClass({
+  getInitialState(){
+    return({
+      searchLetter : '',
+      searchFrequency: ''
+    })
+  },
+  handleSearchLetter(e){
+    this.setState({
+      searchLetter: e.target.value
+    })
+
+    if(e.target.value.length > 0){
+      this.props.onSearchLetter(true, e.target.value)
+    }else if(e.target.value.length === 0 && this.state.searchFrequency != ""){
+      this.props.onSearchLetter(null, this.state.searchFrequency)
+    }else{
+      this.props.onSearchLetter(false, "")
+    }
+  },
+  handleSearchFrequency(e){
+    this.setState({
+      searchFrequency: e.target.value
+    })
+    if(e.target.value.length > 0){
+      this.props.onSearchFrequency(true, e.target.value)
+    }else if(e.target.value.length === 0 && this.state.searchLetter != ""){
+      this.props.onSearchFrequency(null, this.state.searchLetter)
+    }else{
+      this.props.onSearchFrequency(false, "")
+    }
+  },
+  render(){
+    return(
+      <div className="row">
+        <div className="col-sm-4">
+          <label htmlFor="search_letter">Letter :</label>
+          <input type="text" className="form-control" value={this.state.searchLetter} onChange={this.handleSearchLetter} placeholder="A" />
+        </div>
+        <div className="col-sm-4">
+          <label htmlFor="search_frequency">Frequency :</label>
+          <input type="text" className="form-control" value={this.state.searchFrequency} onChange={this.handleSearchFrequency} placeholder="0.00000" />
+        </div>
+      </div>
+    )
+  }
+})
+
 const DataList = React.createClass({
+  getInitialState(){
+    return({
+      isSearch: false,
+      letterSearch: '',
+      frequencySearch: ''
+    })
+  },
   handleSaveData(id, letter, frequency){
     this.props.onSaveData(id, letter, frequency)
   },
   handleDeleteData(id){
     this.props.onDeleteData(id)
-  },render(){
-    // console.log(this.props.data);
-    var all_Data = this.props.data.map((data) => {
-      return (
-        <Data key={data._id || Date.now()} dataId={data._id} letter={data.letter} frequency={data.frequency} onSaveData={this.handleSaveData} onDeleteData={this.handleDeleteData} />
-      )
-    })
-    // console.log(all_Data);
+  },
+  handleSearchLetter(status, dataSearch){
+    if(status != null){
+      this.setState({
+        isSearch: status,
+        letterSearch: dataSearch
+      })
+    }else{
+      this.setState({
+        isSearch: true,
+        letterSearch: '',
+        frequencySearch: dataSearch
+      })
+    }
+  },
+  handleSearchFrequency(status, dataSearch){
+    if(status != null){
+      this.setState({
+        isSearch: status,
+        frequencySearch: dataSearch
+      })
+    }else{
+      this.setState({
+        isSearch: true,
+        letterSearch: dataSearch,
+        frequencySearch: ''
+      })
+    }
+  },
+  render(){
+    var data = this.props.data
+    if(this.state.isSearch){
+      var data_temp = data.filter((data) => {
+        if(this.state.letterSearch != "" && this.state.frequencySearch != ""){
+          return (
+            data.letter.toLowerCase().startsWith(this.state.letterSearch.toLowerCase())
+            &&
+            String(data.frequency).startsWith(this.state.frequencySearch)
+          )
+        }else if(this.state.letterSearch != ""){
+          return data.letter.toLowerCase().startsWith(this.state.letterSearch.toLowerCase())
+        }else{
+          return String(data.frequency).startsWith(this.state.frequencySearch)
+        }
+      })
+
+      var data_node = data_temp.map((data) => {
+        return (
+          <Data key={data._id || Date.now()} dataId={data._id} letter={data.letter} frequency={data.frequency} onSaveData={this.handleSaveData} onDeleteData={this.handleDeleteData} />
+        )
+      })
+    }else{
+      var data_node = data.map((data) => {
+        return (
+          <Data key={data._id || Date.now()} dataId={data._id} letter={data.letter} frequency={data.frequency} onSaveData={this.handleSaveData} onDeleteData={this.handleDeleteData} />
+        )
+      })
+    }
+
     return(
-      <table className="table table-striped" id="table">
-        <thead>
-          <tr>
-            <th className="col-sm-4">Letter</th>
-            <th className="col-sm-4">Frequency</th>
-            <th className="col-sm-4">Action</th>
-          </tr>
-        </thead>
-        <tbody id="body_table">
-          {all_Data}
-        </tbody>
-      </table>
+      <div>
+        <DataSearch onSearchLetter={this.handleSearchLetter} onSearchFrequency={this.handleSearchFrequency} />
+        <table className="table table-striped" id="table">
+          <thead>
+            <tr>
+              <th className="col-sm-4">Letter</th>
+              <th className="col-sm-4">Frequency</th>
+              <th className="col-sm-4">Action</th>
+            </tr>
+          </thead>
+          <tbody id="body_table">
+            {data_node}
+          </tbody>
+        </table>
+      </div>
     )
   }
 })
@@ -417,15 +527,13 @@ const Data = React.createClass({
   onEditSave(e){
     e.preventDefault()
     var letter = this.state.letter.trim()
-    var frequency = this.state.frequency.trim()
+    var frequency = this.state.frequency
 
     if(!letter || !frequency){
       return
     }else{
       this.props.onSaveData(this.props.dataId, letter, frequency)
       this.setState({
-        letter: '',
-        frequency: '',
         isEdit: false
       })
     }
@@ -502,7 +610,7 @@ const DataFormAdd = React.createClass({
   handleDataSubmit(e){
     e.preventDefault()
     var letter = this.state.letter.trim()
-    var frequency = this.state.frequency.trim()
+    var frequency = this.state.frequency
 
     if(!letter || !frequency){
       return
@@ -544,6 +652,10 @@ const DataFormAdd = React.createClass({
     }
   }
 })
+
+// ---------------------------------
+// data date
+// ---------------------------------
 
 function authDashboard(nextState, replace){
   if(!localStorage.getItem('token')){
