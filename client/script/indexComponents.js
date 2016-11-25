@@ -328,11 +328,27 @@ const DataBox = React.createClass({
       }.bind(this)
     })
   },
+  handleDeleteData(id){
+    var deleteData = this.state.data.filter(data => data._id !== id)
+
+    this.setState({
+      data : deleteData
+    })
+
+    $.ajax({
+      url: 'http://localhost:3000/api/datas/'+id,
+      method: 'DELETE',
+      success: function(deleted_data){
+        console.log(deleted_data);
+        // this.load_all_data()
+      }.bind(this)
+    })
+  },
   render: function(){
     return(
       <div className="container">
         <DataFormAdd onDataSubmit={this.handleDataSubmit}/>
-        <DataList data={this.state.data} onSaveData={this.handleSaveData} />
+        <DataList data={this.state.data} onSaveData={this.handleSaveData} onDeleteData={this.handleDeleteData} />
       </div>
     )
   }
@@ -342,11 +358,13 @@ const DataList = React.createClass({
   handleSaveData(id, letter, frequency){
     this.props.onSaveData(id, letter, frequency)
   },
-  render(){
+  handleDeleteData(id){
+    this.props.onDeleteData(id)
+  },render(){
     // console.log(this.props.data);
     var all_Data = this.props.data.map((data) => {
       return (
-        <Data key={data._id || Date.now()} dataId={data._id} letter={data.letter} frequency={data.frequency} onSaveData={this.handleSaveData} />
+        <Data key={data._id || Date.now()} dataId={data._id} letter={data.letter} frequency={data.frequency} onSaveData={this.handleSaveData} onDeleteData={this.handleDeleteData} />
       )
     })
     // console.log(all_Data);
@@ -412,6 +430,12 @@ const Data = React.createClass({
       })
     }
   },
+  onDeleteClick(e){
+    e.preventDefault()
+    if(confirm("Are you sure want to delete?")){
+      this.props.onDeleteData(this.props.dataId)
+    }
+  },
   render(){
     if(this.state.isEdit){
       return(
@@ -439,7 +463,7 @@ const Data = React.createClass({
           </td>
           <td>
             <button type="button" onClick={this.onEditClick} className="btn btn-warning" >Edit</button>
-            <button type="button" className="btn btn-danger" >Delete</button>
+            <button type="button" onClick={this.onDeleteClick} className="btn btn-danger" >Delete</button>
           </td>
         </tr>
       )
