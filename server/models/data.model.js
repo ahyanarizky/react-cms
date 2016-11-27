@@ -10,7 +10,7 @@ var dataSchema = mongoose.Schema({
         required: true
     },
     frequency: {
-        type: Number,
+        type: String,
         required: true
     }
 })

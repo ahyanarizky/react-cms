@@ -1,7 +1,7 @@
 'use strict'
 
 const Datadate = require('../models/datadate.model')
-
+const moment = require('moment');
 module.exports = {
     getDataDate: function(req, res) {
         Datadate.find({}, function(err, data) {
@@ -26,7 +26,7 @@ module.exports = {
     },
     createDataDate: function(req, res) {
         Datadate.create({
-            letter: req.body.letter,
+            letter: moment(req.body.letter).format('YYYY/MM/DD'),
             frequency: req.body.frequency
         }, function(err, data) {
             if (err) {
@@ -38,7 +38,7 @@ module.exports = {
     },
     updateDataDate: function(req, res) {
         Datadate.findOneAndUpdate({
-            datadateId: req.params.id
+            datadateId: req.body.id
         }, {
             letter: req.body.letter,
             frequency: req.body.frequency
@@ -54,7 +54,7 @@ module.exports = {
     },
     deleteDataDate: function(req, res) {
         Datadate.remove({
-            datadateId: req.params.id
+            datadateId: req.body.id
         }, function(err, data) {
             if (err) {
                 res.json({ message: `Error : ${err}` })

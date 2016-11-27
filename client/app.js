@@ -57,6 +57,17 @@ const HomePage = React.createClass({
         )
     }
 })
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+//                                               DATA PAGE
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
 
 const DataPage = React.createClass({
     render: function() {
@@ -180,37 +191,42 @@ const TableDataBox = React.createClass({
 
 const TableData = React.createClass({
     getInitialState: function() {
-        return {searchedName: '', searchedPhone: ''}
+        return {searchedLetter: '', searchedFrequency: ''}
     },
-    getSearchedName(e) {
-        this.setState({searchedName: e.target.value})
+    getSearchedLetter(e) {
+        this.setState({searchedLetter: e.target.value})
+        console.log('letter :', this.state.searchedLetter);
+
     },
-    getSearchedPhone(e) {
-        this.setState({searchedPhone: e.target.value})
+    getSearchedFrequency(e) {
+        this.setState({searchedFrequency: e.target.value})
+        console.log('freq :', this.state.searchedFrequency);
+
     },
     render: function() {
         let filteredData = this.props.dataContentState
+        console.log('filetr: ',filteredData);
 
-        if (this.state.searchedName != '' && this.state.searchedPhone != '') {
+        if (this.state.searchedLetter != '' && this.state.searchedFrequency != '') {
             filteredData = this.props.dataContentState.filter((data) => {
-                return data.name.toLowerCase().startsWith(this.state.searchedName.toLowerCase()) && data.phone.startsWith(this.state.searchedPhone)
+                return data.letter.toLowerCase().startsWith(this.state.searchedLetter.toLowerCase()) && data.frequency.startsWith(this.state.searchedFrequency)
             })
-        } else if (this.state.searchedName != '') {
+        } else if (this.state.searchedLetter != '') {
             filteredData = this.props.dataContentState.filter((data) => {
-                return data.name.toLowerCase().startsWith(this.state.searchedName.toLowerCase())
+                return data.letter.toLowerCase().startsWith(this.state.searchedLetter.toLowerCase())
             })
-        } else if (this.state.searchedPhone != '') {
+        } else if (this.state.searchedFrequency != '') {
             filteredData = this.props.dataContentState.filter((data) => {
-                return data.phone.startsWith(this.state.searchedPhone)
+                return data.frequency.startsWith(this.state.searchedFrequency)
             })
         }
-        var tableContent = this.props.dataContentState.map(function(data) {
+        var tableContent = filteredData.map(function(data) {
             return (<EachData key={data.dataId} letter={data.letter} frequency={data.frequency} dataId={data.dataId} funcDelete={this.props.funcDelete} funcEdit={this.props.funcEdit}/>)
         }.bind(this))
         return (
             <div>
                 <div className="container search-form well">
-                    <SearchForm atNameChange={this.getSearchedName.bind(this)} valName={this.state.searchedName} atPhoneChange={this.getSearchedPhone.bind(this)} valPhone={this.state.searchedPhone}/>
+                    <SearchForm atLetterChange={this.getSearchedLetter.bind(this)} valLetter={this.state.searchedLetter} atFrequencyChange={this.getSearchedFrequency.bind(this)} valFrequency={this.state.searchedFrequency}/>
                 </div>
                 <table className="table table-hover">
                     <thead className="thead-inverse">
@@ -235,11 +251,11 @@ const SearchForm = React.createClass({
       <form className="form-inline">
           <div className="form-group">
               <label className="inline">Letter</label>
-              <input type="text" className="form-control" id="form-search-letter" value={this.props.valName} onChange={this.props.atNameChange} placeholder="Search Letter"/>
+              <input type="text" className="form-control" id="form-search-letter" value={this.props.valLetter} onChange={this.props.atLetterChange} placeholder="Search Letter"/>
           </div>
           <div className="form-group">
               <label className="inline">Frequency</label>
-              <input type="text" className="form-control" id="form-search-frequency" value={this.props.valPhone} onChange={this.props.atPhoneChange} placeholder="Search Frequency"/>
+              <input type="text" className="form-control" id="form-search-frequency" value={this.props.valFrequency} onChange={this.props.atFrequencyChange} placeholder="Search Frequency"/>
           </div>
       </form>
     )
@@ -267,9 +283,12 @@ const EachData = React.createClass({
     },
     handleLetterChange(e) {
         this.setState({letter: e.target.value})
+        console.log('letter state : ', this.state.letter);
     },
     handleFrequencyChange(e) {
         this.setState({frequency: e.target.value})
+        console.log('freq state : ', this.state.frequency);
+
     },
     confirmEdit() {
         console.log('state :', this.state);
@@ -288,7 +307,6 @@ const EachData = React.createClass({
     },
 
     render: function() {
-        console.log(this.state.editing);
         if (this.state.editing) {
             return (
                 <tr>
@@ -409,30 +427,308 @@ const FormAdd = React.createClass({
         )
     }
 })
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+//                                               DATADATE PAGE
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
 
 const DataDatePage = React.createClass({
     render: function() {
         return (
             <div>
                 <Navbar/>
-                <DataDateContent/>
+                <DataDateContent url="http://localhost:3000/api/datadate"/>
             </div>
         )
     }
 })
 
 const DataDateContent = React.createClass({
+  getInitialState: function() {
+    console.log('dd content');
+      return {datadate: []}
+  },
+  loadDataDate: function() {
+    console.log('load dd');
+      $.ajax({
+          url: this.props.url,
+          dataType: 'json',
+          cache: false,
+          success: function(response) {
+              this.setState({datadate: response})
+          }.bind(this),
+          error: function(xhr, status, err) {
+              console.error(this.props.url, status, err.toString());
+          }.bind(this)
+      })
+  },
+  postDataDate: function(objectFromFormAdd) {
+      var recentState = this.state.datadate
+      $.ajax({
+          url: this.props.url,
+          dataType: 'json',
+          method: 'post',
+          data: objectFromFormAdd,
+          success: function(response) {
+              var newPost = recentState.concat([response])
+              this.setState({datadate: newPost})
+          }.bind(this),
+          error: function(xhr, status, err) {
+              this.setState({datadate: recentState})
+              console.error(this.props.url, status, err.toString());
+          }.bind(this)
+      })
+  },
+  deleteDataDate: function(datadate_id) {
+      console.log('datadate_id :', datadate_id);
+      var del = confirm('Are you sure want to delete this datadate ?')
+      if (del) {
+          $.ajax({
+              url: this.props.url,
+              method: 'DELETE',
+              dataType: 'json',
+              data: {
+                  id: datadate_id
+              },
+              success: function(response) {
+                  console.log('success');
+                  this.loadDataDate()
+              }.bind(this),
+              error: function(xhr, status, err) {
+                  console.log('failed');
+                  console.error(this.props.url, status, err.toString());
+              }.bind(this)
+          })
+      } else {
+          console.log('confirm error');
+          return;
+      }
+  },
+  editDataDate: function(datadate_id, letter, frequency) {
+      console.log('datadate_id :', datadate_id);
+      console.log('letter :', letter);
+      console.log('frequency :', frequency);
+      $.ajax({
+          url: this.props.url,
+          dataType: 'json',
+          method: 'PUT',
+          data: {
+              id: datadate_id,
+              letter: letter,
+              frequency: frequency
+          },
+          success: function(response) {
+              this.loadDataDate()
+          }.bind(this),
+          error: function(xhr, status, err) {
+              console.log('failed');
+              console.error(this.props.url, status, err.toString());
+          }.bind(this)
+      })
+  },
+  render: function() {
+      return (
+          <div className="container">
+              <div className="jumbotron">
+                  <h1>Welcome to Data Date Page</h1>
+              </div>
+              <ButtonAddDate />
+              <TableDataDateBox dataDateContentState={this.state.datadate} funcDelete={this.deleteDataDate} funcEdit={this.editDataDate}/>
+          </div>
+      )
+  },
+  componentDidMount: function() {
+      this.loadDataDate()
+  }
+
+})
+const TableDataDateBox = React.createClass({
     render: function() {
+      console.log('table dd box');
         return (
-            <div className="container">
-                <div className="jumbotron">
-                    <h1>Welcome to Data Date Page</h1>
-                </div>
-                <ButtonAdd/>
+            <div className="tableDataDateBox">
+                <h1>CMS Table</h1>
+                <TableDataDate dataDateContentState={this.props.dataDateContentState} funcDelete={this.props.funcDelete} funcEdit={this.props.funcEdit}/>
             </div>
         )
     }
 })
+
+
+const TableDataDate = React.createClass({
+    // getInitialState: function() {
+    //     return {searchedLetter: '', searchedFrequency: ''}
+    // },
+    // getSearchedLetter(e) {
+    //     this.setState({searchedLetter: e.target.value})
+    // },
+    // getSearchedFrequency(e) {
+    //     this.setState({searchedFrequency: e.target.value})
+    // },
+    render: function() {
+      console.log('table dd');
+        var tableContent = this.props.dataDateContentState.map(function(data) {
+          console.log('data each', data);
+            return (<EachDataDate key={data.datadateId} letter={data.letter} frequency={data.frequency} datadateId={data.datadateId} />)
+        }.bind(this))
+        return (
+            <div>
+                <table className="table table-hover">
+                    <thead className="thead-inverse">
+                        <tr>
+                            <th>Letter</th>
+                            <th>Frequency</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {tableContent}
+                    </tbody>
+                </table>
+            </div>
+        )
+    }
+})
+const EachDataDate = React.createClass({
+    getInitialState: function() {
+      console.log('each datadate');
+        return {
+            editing: false,
+            letter: this.props.letter || '',
+            frequency: this.props.frequency || ''
+        }
+    },
+    // handleDelete: function() {
+    //     console.log('this props :', this.props);
+    //     this.props.funcDelete(this.props.dataId)
+    // },
+    // handleEditing() {
+    //     console.log('handleEditing');
+    //     this.setState({editing: true})
+    // },
+    // handleCancelButton() {
+    //     this.setState({editing: false})
+    // },
+    // handleLetterChange(e) {
+    //     this.setState({letter: e.target.value})
+    // },
+    // handleFrequencyChange(e) {
+    //     this.setState({frequency: e.target.value})
+    // },
+    // confirmEdit() {
+    //     console.log('state :', this.state);
+    //     var letter = this.state.letter.trim()
+    //     var frequency = this.state.frequency
+    //     var upLetter = letter.toUpperCase()
+    //     var upFreq = frequency
+    //     console.log('letter :', letter);
+    //     console.log('freq :', frequency);
+    //     if (!letter || !frequency) {
+    //         return;
+    //     } else {
+    //         this.props.funcEdit(this.props.dataId, upLetter, upFreq)
+    //         this.setState({editing: false})
+    //     }
+    // },
+
+    render: function() {
+            return (
+                <tr>
+                    <td>{moment(this.props.letter).format('YYYY/MM/DD')}</td>
+                    <td>{this.props.frequency}</td>
+                    <td>
+                        <span className="form-group">
+                            <button className="btn btn-success">
+                                <span className="glyphicon glyphicon-edit"></span>
+                                Update</button>
+                            <button className="btn btn-danger inline-btn">
+                                <span className="glyphicon glyphicon-trash"></span>
+                                Delete</button>
+                        </span>
+                    </td>
+                </tr>
+            )
+    }
+})
+
+const ButtonAddDate = React.createClass({
+    getInitialState: function() {
+        return {isAdding: false}
+    },
+    render: function() {
+        if (this.state.isAdding) {
+            return (<FormAddDate hideForm={this.hideFormAdd} postDataFromDataContent={this.props.postDataFromDataContent}/>)
+        } else {
+            return (
+                <div>
+                    <button className="btn btn-primary" onClick={this.showFormAdd}>
+                        <span className="glyphicon glyphicon-plus"></span>
+                        add</button>
+                    <div id="add-form"></div>
+                </div>
+            )
+
+        }
+    },
+    showFormAdd: function() {
+        this.setState({isAdding: true})
+    },
+    hideFormAdd: function() {
+        this.setState({isAdding: false})
+    }
+})
+
+const FormAddDate = React.createClass({
+    getInitialState: function() {
+        return {letter: '', frequency: ''}
+    },
+    handleLetterChange: function(e) {
+        this.setState({letter: e.target.value})
+    },
+    handleFrequencyChange: function(e) {
+        this.setState({frequency: e.target.value})
+    },
+    handleSubmit: function() {
+        var letter = this.state.letter.trim()
+        var frequency = this.state.frequency.trim()
+        var upLetter = letter.toUpperCase()
+        var upFreq = frequency.toUpperCase()
+        if (!letter || !frequency) {
+            return
+        } else {
+            this.props.postDataFromDataContent({letter: upLetter, frequency: upFreq})
+            this.setState({letter: '', frequency: ''})
+        }
+    },
+    render: function() {
+        return (
+            <div>
+                <form className="form-inline" onSubmit={this.handleSubmit}>
+                    <div className="form-group">
+                        <label>Letter</label>
+                        <input type="date" className="form-control let-freq" id="input-add-letter" placeholder="Enter Date" value={this.state.letter} onChange={this.handleLetterChange}/>
+                    </div>
+                    <div className="form-group">
+                        <label>Frequency</label>
+                        <input type="text" className="form-control let-freq" id="input-add-frequency" placeholder="0.000000" value={this.state.frequency} onChange={this.handleFrequencyChange}/>
+                    </div>
+                    <button type="submit" className="btn btn-primary btn-in">Post</button>
+                    <span>
+                        <a role="button" className="btn btn-default" onClick={this.props.hideForm}>Cancel</a>
+                    </span>
+                </form>
+            </div>
+        )
+    }
+})
+
 
 ReactDOM.render((
     <Router history={hashHistory}>
