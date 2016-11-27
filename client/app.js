@@ -28,11 +28,18 @@ const Navbar = React.createClass({
                             <li>
                                 <Link to="/datadate">Data Date</Link>
                             </li>
+                            <div id="navbar" className="navbar-collapse collapse navbar-right">
+                              <button className="btn btn-primary pull-right" onClick={this.handleLogout.bind(this)}> Logout </button>
+                            </div>
                         </ul>
                     </div>
                 </div>
             </nav>
         )
+    },
+    handleLogout: function() {
+      Auth.deauthenticateUser()
+      location.reload()
     }
 })
 const HomeContent = React.createClass({
@@ -48,13 +55,175 @@ const HomeContent = React.createClass({
 })
 
 const HomePage = React.createClass({
+    getInitialState: function() {
+      return (
+        {
+          usernameLogin: '',
+          passwordLogin: '',
+          usernameRegister: '',
+          passwordRegister: '',
+          confirmPassword: '',
+          email: '',
+          match: true,
+              }
+            )
+    },
+    inputUsernameLogin: function(e) {
+      this.setState({usernameLogin: e.target.value})
+    },
+    inputPasswordLogin: function(e) {
+      this.setState({passwordLogin: e.target.value})
+    },
+    inputUsernameRegister: function(e) {
+      this.setState({usernameRegister: e.target.value})
+    },
+    inputPasswordRegister: function(e) {
+      this.setState({passwordRegister: e.target.value})
+    },
+    inputConfirmPassword: function(e) {
+      this.setState({confirmPassword: e.target.value})
+    },
+    inputEmailRegister: function(e) {
+      this.setState({email: e.target.value})
+    },
+    handleMatch: function() {
+      this.setState({match: true})
+    },
+    loginProcess: function(e) {
+      console.log('login');
+      e.preventDefault()
+      let username = this.state.usernameLogin.trim()
+      let password = this.state.passwordLogin.trim()
+
+      $.ajax({
+        url: 'http://localhost:3000/api/user/login',
+        method: 'POST',
+        data: {
+          username: username,
+          password: password
+        },
+        success: function(data) {
+          Auth.authenticateUser(data.token)
+          location.reload()
+        }.bind(this),
+      })
+    },
+    registerProcess: function(e) {
+      console.log('reg');
+      e.preventDefault()
+      let username = this.state.usernameRegister.trim()
+      let password = this.state.passwordRegister.trim()
+      let confirmPassword = this.state.confirmPassword.trim()
+      let email = this.state.email.trim()
+      if (password != confirmPassword) {
+        this.setState({match: false})
+      } else {
+        $.ajax({
+          url: 'http://localhost:3000/api/user/register',
+          method: 'POST',
+          data: {
+            username: username,
+            password: password,
+            email: email
+          },
+          success: function(data) {
+            Auth.authenticateUser(data.token)
+            location.reload()
+          }.bind(this),
+          error: function(err) {
+            console.log(err);
+          }.bind(this)
+        })
+      }
+    },
     render: function() {
+      console.log('init');
+      if (!Auth.isUserAuthenticated()) {
+        console.log('form');
+        if (!this.state.match) {
+          return (
+            <div className="container">
+              <div className="alert alert-danger">
+                  <button onClick={this.handleMatch.bind(this)} className="btn btn-xs btn-danger pull-right">Try again</button>
+                  <strong>Confirm Password not match</strong><br/>
+                  Please type the password carefully
+              </div>
+            </div>
+          )
+        } else {
+          return (
+            <div className="container">
+        <div className="row">
+        <div className="col-md-6 col-md-offset-3">
+          <div className="panel panel-login">
+            <div className="panel-heading">
+              <div className="row">
+                <div className="col-xs-6">
+                  <a href="#" className="active" id="login-form-link">Login</a>
+                </div>
+                <div className="col-xs-6">
+                  <a href="#" id="register-form-link">Register</a>
+                </div>
+              </div>
+              <hr/>
+            </div>
+            <div className="panel-body">
+              <div className="row">
+                <div className="col-lg-12">
+                  <form id="login-form" style={{display: "block"}} onSubmit={this.loginProcess.bind(this)}>
+                    <div className="form-group">
+                      <input type="text" name="username" id="username-login" tabIndex="1" className="form-control" placeholder="Username" onClick={this.inputUsernameLogin.bind(this)}/>
+                    </div>
+                    <div className="form-group">
+                      <input type="password" name="password" id="password-login" tabIndex="2" className="form-control" placeholder="Password" onClick={this.inputPasswordLogin.bind(this)}/>
+                    </div>
+                    <div className="form-group">
+                      <div className="row">
+                        <div className="col-sm-6 col-sm-offset-3">
+                          <input type="submit" name="login-submit" id="login-submit" tabIndex="4" className="form-control btn btn-login" value="Log In"/>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                  <form id="register-form" style={{display: "none"}} onSubmit={this.registerProcess.bind(this)}>
+                    <div className="form-group">
+                      <input type="text" name="username" id="username-reg" tabIndex="1" className="form-control" placeholder="Username" onClick={this.inputUsernameRegister.bind(this)}/>
+                    </div>
+                    <div className="form-group">
+                      <input type="email" name="email" id="email" tabIndex="1" className="form-control" placeholder="Email Address" onClick={this.inputEmailRegister.bind(this)}/>
+                    </div>
+                    <div className="form-group">
+                      <input type="password" name="password" id="password-reg" tabIndex="2" className="form-control" placeholder="Password" onClick={this.inputPasswordRegister.bind(this)}/>
+                    </div>
+                    <div className="form-group">
+                      <input type="password" name="confirm-password" id="confirm-password" tabIndex="2" className="form-control" placeholder="Confirm Password" onClick={this.inputConfirmPassword.bind(this)}/>
+                    </div>
+                    <div className="form-group">
+                      <div className="row">
+                        <div className="col-sm-6 col-sm-offset-3">
+                          <input type="submit" name="register-submit" id="register-submit" tabIndex="4" className="form-control btn btn-register" value="Register Now"/>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+          )
+        }
+      } else {
+        console.log('home');
         return (
             <div>
                 <Navbar/>
                 <HomeContent/>
             </div>
         )
+      }
     }
 })
 //--------------------------------------------------------------------------------------

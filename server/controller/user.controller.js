@@ -44,5 +44,15 @@ module.exports = {
                 token: token
             })
         })(req, res, next)
+    },
+    getAllUser: function(req, res) {
+      User.find({}, (err, data) => {
+        if (err) {
+          console.log(err);
+          res.json({message: err})
+        } else {
+          res.json(data)
+        }
+      })
     }
 }
