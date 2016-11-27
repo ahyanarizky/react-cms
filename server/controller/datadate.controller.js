@@ -38,7 +38,7 @@ module.exports = {
     },
     updateDataDate: function(req, res) {
         Datadate.findOneAndUpdate({
-            datadateId: req.body.id
+            datadateId: req.body.datadateId
         }, {
             letter: req.body.letter,
             frequency: req.body.frequency
@@ -54,7 +54,7 @@ module.exports = {
     },
     deleteDataDate: function(req, res) {
         Datadate.remove({
-            datadateId: req.body.id
+            datadateId: req.body.datadateId
         }, function(err, data) {
             if (err) {
                 res.json({ message: `Error : ${err}` })

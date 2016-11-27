@@ -495,7 +495,7 @@ const DataDateContent = React.createClass({
               method: 'DELETE',
               dataType: 'json',
               data: {
-                  id: datadate_id
+                  datadateId: datadate_id
               },
               success: function(response) {
                   console.log('success');
@@ -512,15 +512,12 @@ const DataDateContent = React.createClass({
       }
   },
   editDataDate: function(datadate_id, letter, frequency) {
-      console.log('datadate_id :', datadate_id);
-      console.log('letter :', letter);
-      console.log('frequency :', frequency);
       $.ajax({
           url: this.props.url,
           dataType: 'json',
           method: 'PUT',
           data: {
-              id: datadate_id,
+              datadateId: datadate_id,
               letter: letter,
               frequency: frequency
           },
@@ -539,8 +536,8 @@ const DataDateContent = React.createClass({
               <div className="jumbotron">
                   <h1>Welcome to Data Date Page</h1>
               </div>
-              <ButtonAddDate />
-              <TableDataDateBox dataDateContentState={this.state.datadate} funcDelete={this.deleteDataDate} funcEdit={this.editDataDate}/>
+              <ButtonAddDate funcAdd={this.postDataDate}/>
+              <TableDataDateBox ddstate={this.state.datadate} funcDelete={this.deleteDataDate} funcEdit={this.editDataDate}/>
           </div>
       )
   },
@@ -555,7 +552,7 @@ const TableDataDateBox = React.createClass({
         return (
             <div className="tableDataDateBox">
                 <h1>CMS Table</h1>
-                <TableDataDate dataDateContentState={this.props.dataDateContentState} funcDelete={this.props.funcDelete} funcEdit={this.props.funcEdit}/>
+                <TableDataDate ddstate={this.props.ddstate} funcDelete={this.props.funcDelete} funcEdit={this.props.funcEdit}/>
             </div>
         )
     }
@@ -574,9 +571,9 @@ const TableDataDate = React.createClass({
     // },
     render: function() {
       console.log('table dd');
-        var tableContent = this.props.dataDateContentState.map(function(data) {
+        var tableContent = this.props.ddstate.map(function(data) {
           console.log('data each', data);
-            return (<EachDataDate key={data.datadateId} letter={data.letter} frequency={data.frequency} datadateId={data.datadateId} />)
+            return (<EachDataDate key={data.datadateId} letter={data.letter} frequency={data.frequency} datadateId={data.datadateId} funcDelete={this.props.funcDelete} funcEdit={this.props.funcEdit}/>)
         }.bind(this))
         return (
             <div>
@@ -605,56 +602,85 @@ const EachDataDate = React.createClass({
             frequency: this.props.frequency || ''
         }
     },
-    // handleDelete: function() {
-    //     console.log('this props :', this.props);
-    //     this.props.funcDelete(this.props.dataId)
-    // },
-    // handleEditing() {
-    //     console.log('handleEditing');
-    //     this.setState({editing: true})
-    // },
-    // handleCancelButton() {
-    //     this.setState({editing: false})
-    // },
-    // handleLetterChange(e) {
-    //     this.setState({letter: e.target.value})
-    // },
-    // handleFrequencyChange(e) {
-    //     this.setState({frequency: e.target.value})
-    // },
-    // confirmEdit() {
-    //     console.log('state :', this.state);
-    //     var letter = this.state.letter.trim()
-    //     var frequency = this.state.frequency
-    //     var upLetter = letter.toUpperCase()
-    //     var upFreq = frequency
-    //     console.log('letter :', letter);
-    //     console.log('freq :', frequency);
-    //     if (!letter || !frequency) {
-    //         return;
-    //     } else {
-    //         this.props.funcEdit(this.props.dataId, upLetter, upFreq)
-    //         this.setState({editing: false})
-    //     }
-    // },
+    handleDelete: function() {
+         this.props.funcDelete(this.props.datadateId)
+    },
+    formEdit() {
+        this.setState({editing: true})
+    },
+    handleCancelButton() {
+        this.setState({editing: false, letter: this.props.letter, frequency: this.props.frequency})
+    },
+    handleLetterChange(e) {
+        this.setState({letter: e.target.value})
+    },
+    handleFrequencyChange(e) {
+        this.setState({frequency: e.target.value})
+    },
+    confirmEdit() {
+        console.log('state :', this.state);
+        var letter = this.state.letter.trim()
+        var frequency = this.state.frequency.trim()
+        var upLetter = letter.toUpperCase()
+        var upFreq = frequency.toUpperCase()
+        console.log('letter :', letter);
+        console.log('freq :', frequency);
+        if (!letter || !frequency) {
+            return;
+        } else {
+            this.props.funcEdit(this.props.datadateId, upLetter, upFreq)
+            this.setState({editing: false})
+        }
+    },
 
     render: function() {
-            return (
-                <tr>
-                    <td>{moment(this.props.letter).format('YYYY/MM/DD')}</td>
-                    <td>{this.props.frequency}</td>
+      if (!this.state.editing) {
+        return (
+            <tr>
+                <td>{moment(this.props.letter).format('YYYY/MM/DD')}</td>
+                <td>{this.props.frequency}</td>
+                <td>
+                    <span className="form-group">
+                        <button className="btn btn-success" onClick={this.formEdit.bind(this)}>
+                            <span className="glyphicon glyphicon-edit"></span>
+                            Update</button>
+                        <button className="btn btn-danger inline-btn" onClick={this.handleDelete.bind(this)}>
+                            <span className="glyphicon glyphicon-trash"></span>
+                            Delete</button>
+                    </span>
+                </td>
+            </tr>
+        )
+      } else {
+        return (
+            <tr>
+                <form className="form-inline" onSubmit={this.confirmEdit.bind(this)}>
                     <td>
-                        <span className="form-group">
-                            <button className="btn btn-success">
-                                <span className="glyphicon glyphicon-edit"></span>
-                                Update</button>
-                            <button className="btn btn-danger inline-btn">
-                                <span className="glyphicon glyphicon-trash"></span>
-                                Delete</button>
+                        <div className="form-group">
+                            <label>Edit Letter</label>
+                            <input type="date" className="form-control let-freq" id="input-edit-letter-dd" placeholder="Enter Letter" value={this.state.letter} onChange={this.handleLetterChange.bind(this)}/>
+                        </div>
+                    </td>
+                    <td>
+                        <div className="form-group">
+                            <label>Edit Frequency</label>
+                            <input type="text" className="form-control let-freq" id="input-edit-frequency-dd" placeholder="Enter Frequency" value={this.state.frequency} onChange={this.handleFrequencyChange.bind(this)}/>
+                        </div>
+                    </td>
+                    <td>
+                        <button type="submit" className="btn btn-success btn-in">
+                            <span className="glyphicon glyphicon-ok"></span>
+                            Confirm Edit</button>
+                        <span>
+                            <a onClick={this.handleCancelButton} className="btn btn-default">
+                                <span className="glyphicon glyphicon-remove"></span>
+                                Cancel</a>
                         </span>
                     </td>
-                </tr>
-            )
+                </form>
+            </tr>
+        )
+      }
     }
 })
 
@@ -664,7 +690,7 @@ const ButtonAddDate = React.createClass({
     },
     render: function() {
         if (this.state.isAdding) {
-            return (<FormAddDate hideForm={this.hideFormAdd} postDataFromDataContent={this.props.postDataFromDataContent}/>)
+            return (<FormAddDate hideForm={this.hideFormAdd} funcAdd={this.props.funcAdd}/>)
         } else {
             return (
                 <div>
@@ -703,7 +729,7 @@ const FormAddDate = React.createClass({
         if (!letter || !frequency) {
             return
         } else {
-            this.props.postDataFromDataContent({letter: upLetter, frequency: upFreq})
+            this.props.funcAdd({letter: upLetter, frequency: upFreq})
             this.setState({letter: '', frequency: ''})
         }
     },
