@@ -560,23 +560,41 @@ const TableDataDateBox = React.createClass({
 
 
 const TableDataDate = React.createClass({
-    // getInitialState: function() {
-    //     return {searchedLetter: '', searchedFrequency: ''}
-    // },
-    // getSearchedLetter(e) {
-    //     this.setState({searchedLetter: e.target.value})
-    // },
-    // getSearchedFrequency(e) {
-    //     this.setState({searchedFrequency: e.target.value})
-    // },
+    getInitialState: function() {
+        return {searchedLetter: '', searchedFrequency: ''}
+    },
+    getSearchedLetter(e) {
+        this.setState({searchedLetter: e.target.value})
+    },
+    getSearchedFrequency(e) {
+        this.setState({searchedFrequency: e.target.value})
+    },
     render: function() {
-      console.log('table dd');
-        var tableContent = this.props.ddstate.map(function(data) {
-          console.log('data each', data);
+      let filteredData = this.props.ddstate
+      console.log('filetr: ',filteredData);
+
+      if (this.state.searchedLetter != '' && this.state.searchedFrequency != '') {
+          filteredData = this.props.ddstate.filter((data) => {
+              return data.letter.toLowerCase().startsWith(this.state.searchedLetter.toLowerCase()) && data.frequency.startsWith(this.state.searchedFrequency)
+          })
+      } else if (this.state.searchedLetter != '') {
+          filteredData = this.props.ddstate.filter((data) => {
+              return data.letter.toLowerCase().startsWith(this.state.searchedLetter.toLowerCase())
+          })
+      } else if (this.state.searchedFrequency != '') {
+          filteredData = this.props.ddstate.filter((data) => {
+              return data.frequency.startsWith(this.state.searchedFrequency)
+          })
+      }
+
+        var tableContent = filteredData.map(function(data) {
             return (<EachDataDate key={data.datadateId} letter={data.letter} frequency={data.frequency} datadateId={data.datadateId} funcDelete={this.props.funcDelete} funcEdit={this.props.funcEdit}/>)
         }.bind(this))
         return (
             <div>
+              <div className='well'>
+                <SearchFormDD valLetter={this.state.searchedLetter} atLetterChange={this.getSearchedLetter.bind(this)} valFrequency={this.state.searchedFrequency} atFrequencyChange={this.getSearchedFrequency.bind(this)}/>
+              </div>
                 <table className="table table-hover">
                     <thead className="thead-inverse">
                         <tr>
@@ -593,6 +611,24 @@ const TableDataDate = React.createClass({
         )
     }
 })
+
+const SearchFormDD = React.createClass({
+  render: function() {
+    return (
+      <form className="form-inline">
+          <div className="form-group">
+              <label className="inline">Letter</label>
+              <input type="text" className="form-control" id="form-search-letter-dd" value={this.props.valLetter} onChange={this.props.atLetterChange} placeholder="Search Letter"/>
+          </div>
+          <div className="form-group">
+              <label className="inline">Frequency</label>
+              <input type="text" className="form-control" id="form-search-frequency-dd" value={this.props.valFrequency} onChange={this.props.atFrequencyChange} placeholder="Search Frequency"/>
+          </div>
+      </form>
+    )
+  }
+})
+
 const EachDataDate = React.createClass({
     getInitialState: function() {
       console.log('each datadate');
